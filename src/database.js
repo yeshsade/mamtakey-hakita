@@ -140,6 +140,30 @@ function initTables() {
     const hash = bcrypt.hashSync('1234', 10);
     dbWrapper.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', hash, 'admin');
   }
+
+  const studentCount = dbWrapper.prepare('SELECT COUNT(*) as cnt FROM students').get();
+  if (studentCount.cnt === 0) {
+    const sampleStudents = [
+      ['יוסי כהן', '1001'], ['דנה לוי', '1002'], ['אורי גולן', '1003'],
+      ['נועה פרץ', '1004'], ['איתי מזרחי', '1005'], ['מאיה אברהם', '1006'],
+      ['עומר דוד', '1007'], ['שירה רוזן', '1008'], ['תמיר חן', '1009'],
+      ['ליאור שמעון', '1010']
+    ];
+    for (const [name, barcode] of sampleStudents) {
+      dbWrapper.prepare('INSERT INTO students (name, barcode, balance) VALUES (?, ?, ?)').run(name, barcode, 50);
+    }
+  }
+
+  const productCount = dbWrapper.prepare('SELECT COUNT(*) as cnt FROM products').get();
+  if (productCount.cnt === 0) {
+    const sampleProducts = [
+      ['סוכריה', '2001', 5], ['שוקולד', '2002', 10], ['גומי', '2003', 3],
+      ['ביסלי', '2004', 8], ['במבה', '2005', 7], ['עוגיה', '2006', 6]
+    ];
+    for (const [name, barcode, price] of sampleProducts) {
+      dbWrapper.prepare('INSERT INTO products (name, barcode, price) VALUES (?, ?, ?)').run(name, barcode, price);
+    }
+  }
 }
 
 async function initDatabase() {
