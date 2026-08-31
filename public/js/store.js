@@ -52,17 +52,37 @@ async function loadProducts() {
   renderProducts();
 }
 
+function getProductEmoji(name) {
+  const n = name.toLowerCase();
+  if (n.includes('סוכריה') || n.includes('סוכרי')) return '🍬';
+  if (n.includes('שוקולד')) return '🍫';
+  if (n.includes('גומי')) return '🐻';
+  if (n.includes('ביסלי') || n.includes('חטיף')) return '🌽';
+  if (n.includes('במבה') || n.includes('בוטנים')) return '🥜';
+  if (n.includes('עוגיה') || n.includes('עוגי')) return '🍪';
+  if (n.includes('גלידה')) return '🍦';
+  if (n.includes('מסטיק')) return '🫧';
+  if (n.includes('שלגון') || n.includes('ארטיק')) return '🧊';
+  if (n.includes('וופל')) return '🧇';
+  if (n.includes('קרקר')) return '🍘';
+  if (n.includes('פופקורן')) return '🍿';
+  if (n.includes('עוגה') || n.includes('קאפקייק')) return '🧁';
+  if (n.includes('סוכריה על מקל') || n.includes('מקל')) return '🍭';
+  return '🍬';
+}
+
 function renderProducts() {
   const grid = document.getElementById('productsGrid');
   grid.innerHTML = '';
 
   for (const product of products) {
     const inCart = cart.find(c => c.product.id === product.id);
+    const emoji = getProductEmoji(product.name);
     const card = document.createElement('div');
     card.className = `store-product-card${inCart ? ' selected' : ''}`;
     card.onclick = () => addToCart(product);
     card.innerHTML = `
-      <div class="store-product-emoji">🍫</div>
+      <div class="store-product-emoji">${emoji}</div>
       <div class="store-product-name">${product.name}</div>
       <div class="store-product-price">${product.price} נק׳</div>
     `;

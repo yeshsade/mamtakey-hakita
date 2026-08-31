@@ -1,70 +1,85 @@
 <%- include('partials/header', { extraCss: 'store' }) %>
 
 <div class="store-page">
+  <div class="store-floating-candy">
+    <span class="candy c1">🍬</span>
+    <span class="candy c2">🍭</span>
+    <span class="candy c3">🧁</span>
+    <span class="candy c4">🍫</span>
+    <span class="candy c5">🍪</span>
+    <span class="candy c6">🐻</span>
+    <span class="candy c7">🎀</span>
+  </div>
+
   <div class="store-header">
     <a href="/" class="store-logo">
-      <span class="store-logo-icon">🍬</span>
-      <span class="store-logo-text">חנות ממתקי הכיתה</span>
+      <span class="store-logo-icon">🍭</span>
+      <div>
+        <div class="store-logo-text">חנות ממתקי הכיתה</div>
+        <div class="store-logo-sub">🍬 הממתקים הכי טעימים 🍬</div>
+      </div>
     </a>
     <div class="store-nav">
-      <a href="/">ראשי</a>
-      <a href="/bank">בנק</a>
+      <a href="/">🏠 ראשי</a>
+      <a href="/bank">🏦 בנק</a>
     </div>
   </div>
 
   <div class="store-content">
     <div class="store-scan-section" id="scanSection">
-      <div class="store-scan-title">סרוק כרטיס תלמיד כדי להתחיל</div>
+      <div class="store-scan-icon">🛒</div>
+      <div class="store-scan-title">סרוק כרטיס תלמיד כדי להתחיל לקנות!</div>
       <input type="text" class="store-barcode-input" id="studentBarcodeInput"
-             placeholder="סריקת ברקוד תלמיד..."
+             placeholder="🔍 סריקת ברקוד..."
              autofocus autocomplete="off">
     </div>
 
     <div id="shopSection" class="hidden fade-in">
       <div class="store-customer">
         <div class="store-customer-info">
-          <div class="store-customer-avatar" id="customerAvatar"></div>
+          <div class="store-customer-avatar" id="customerAvatar">🧒</div>
           <div>
             <div class="store-customer-name" id="customerName"></div>
-            <div class="store-customer-balance">יתרה: <span id="customerBalance">0</span> נק׳</div>
+            <div class="store-customer-balance">💰 יתרה: <span id="customerBalance">0</span> נק׳</div>
           </div>
         </div>
-        <button class="store-change-btn" onclick="resetShop()">החלף תלמיד</button>
+        <button class="store-change-btn" onclick="resetShop()">🔄 החלף תלמיד</button>
       </div>
 
       <div class="store-scan-product">
-        <div class="store-products-title">סרוק ברקוד ממתק או בחר מהרשימה</div>
-        <input type="text" id="productBarcodeInput" placeholder="סריקת ברקוד ממתק..." autocomplete="off">
+        <div class="store-products-title">🔍 סרוק ברקוד ממתק או בחר מהרשימה</div>
+        <input type="text" id="productBarcodeInput" placeholder="🔍 סריקת ברקוד ממתק..." autocomplete="off">
       </div>
 
-      <div class="store-products-title">ממתקים זמינים</div>
+      <div class="store-products-title">🍬 ממתקים זמינים</div>
       <div class="store-products-grid" id="productsGrid"></div>
 
       <div class="store-checkout hidden" id="checkoutSection">
-        <div class="store-products-title">עגלת קניות</div>
+        <div class="store-products-title">🛒 עגלת קניות</div>
         <div id="cartItems"></div>
         <div class="store-total-bar">
-          <span class="store-total-label">סה״כ</span>
+          <span class="store-total-label">🧮 סה״כ</span>
           <span class="store-total-amount"><span id="totalAmount">0</span> נק׳</span>
         </div>
-        <button class="store-buy-btn" id="buyBtn" onclick="completePurchase()">לתשלום</button>
+        <button class="store-buy-btn" id="buyBtn" onclick="completePurchase()">💳 לתשלום</button>
       </div>
     </div>
   </div>
 
   <div class="store-new-product-modal hidden" id="newProductModal">
     <div class="store-new-product-dialog">
-      <h3>ממתק חדש</h3>
+      <div class="store-dialog-icon">🍬</div>
+      <h3>ממתק חדש!</h3>
       <p style="text-align:center;color:#888;margin-bottom:16px;font-size:0.9rem;">
         הברקוד לא מוכר. הוסף מוצר חדש:
       </p>
       <input type="text" id="newProductBarcode" placeholder="ברקוד" readonly
              style="background:#f5f5f7;">
-      <input type="text" id="newProductName" placeholder="שם הממתק" autocomplete="off">
-      <input type="number" id="newProductPrice" placeholder="מחיר (נקודות)" min="1" autocomplete="off">
+      <input type="text" id="newProductName" placeholder="🍫 שם הממתק" autocomplete="off">
+      <input type="number" id="newProductPrice" placeholder="💰 מחיר (נקודות)" min="1" autocomplete="off">
       <div class="bank-dialog-actions">
-        <button class="bank-confirm-btn" style="background:#7c3aed;" onclick="saveNewProduct()">הוסף</button>
-        <button class="bank-cancel-btn" onclick="closeNewProductModal()">ביטול</button>
+        <button class="bank-confirm-btn" style="background:#7c3aed;" onclick="saveNewProduct()">✅ הוסף</button>
+        <button class="bank-cancel-btn" onclick="closeNewProductModal()">❌ ביטול</button>
       </div>
     </div>
   </div>
