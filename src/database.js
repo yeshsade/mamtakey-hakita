@@ -1,27 +1,83 @@
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
+const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
 const DB_PATH = path.join(__dirname, '..', 'data', 'mamtakey.db');
 
-let db;
+let dbWrapper = null;
+let inTransaction = false;
 
-function getDb() {
-  if (!db) {
-    const fs = require('fs');
-    const dataDir = path.join(__dirname, '..', 'data');
-    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+function saveDb() {
+  if (!dbWrapper || inTransaction) return;
+  const data = dbWrapper._db.export();
+  fs.writeFileSync(DB_PATH, Buffer.from(data));
+}
 
-    db = new Database(DB_PATH);
-    db.pragma('journal_mode = WAL');
-    db.pragma('foreign_keys = ON');
-    initTables();
-  }
-  return db;
+function createWrapper(sqlDb) {
+  return {
+    _db: sqlDb,
+
+    exec(sql) {
+      sqlDb.exec(sql);
+      saveDb();
+    },
+
+    pragma(str) {
+      sqlDb.exec('PRAGMA ' + str);
+    },
+
+    prepare(sql) {
+      return {
+        run(...params) {
+          sqlDb.run(sql, params);
+          saveDb();
+          return { changes: sqlDb.getRowsModified() };
+        },
+        get(...params) {
+          const stmt = sqlDb.prepare(sql);
+          if (params.length > 0) stmt.bind(params);
+          let row;
+          if (stmt.step()) {
+            row = stmt.getAsObject();
+          }
+          stmt.free();
+          return row;
+        },
+        all(...params) {
+          const results = [];
+          const stmt = sqlDb.prepare(sql);
+          if (params.length > 0) stmt.bind(params);
+          while (stmt.step()) {
+            results.push(stmt.getAsObject());
+          }
+          stmt.free();
+          return results;
+        }
+      };
+    },
+
+    transaction(fn) {
+      return (...args) => {
+        sqlDb.run('BEGIN TRANSACTION');
+        inTransaction = true;
+        try {
+          fn(...args);
+          sqlDb.run('COMMIT');
+          inTransaction = false;
+          saveDb();
+        } catch (e) {
+          inTransaction = false;
+          sqlDb.run('ROLLBACK');
+          throw e;
+        }
+      };
+    }
+  };
 }
 
 function initTables() {
-  db.exec(`
+  dbWrapper.exec(`
     CREATE TABLE IF NOT EXISTS students (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
@@ -79,14 +135,42 @@ function initTables() {
     );
   `);
 
-  const adminExists = db.prepare('SELECT id FROM users WHERE username = ?').get('admin');
+  const adminExists = dbWrapper.prepare('SELECT id FROM users WHERE username = ?').get('admin');
   if (!adminExists) {
     const hash = bcrypt.hashSync('1234', 10);
-    db.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', hash, 'admin');
+    dbWrapper.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', hash, 'admin');
   }
 }
 
+async function initDatabase() {
+  if (dbWrapper) return dbWrapper;
+
+  const SQL = await initSqlJs();
+  const dataDir = path.join(__dirname, '..', 'data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+  let sqlDb;
+  if (fs.existsSync(DB_PATH)) {
+    const buffer = fs.readFileSync(DB_PATH);
+    sqlDb = new SQL.Database(buffer);
+  } else {
+    sqlDb = new SQL.Database();
+  }
+
+  dbWrapper = createWrapper(sqlDb);
+  dbWrapper.pragma('journal_mode = WAL');
+  dbWrapper.pragma('foreign_keys = ON');
+  initTables();
+  return dbWrapper;
+}
+
+function getDb() {
+  if (!dbWrapper) throw new Error('Database not initialized');
+  return dbWrapper;
+}
+
 function applyScheduledPrices() {
+  const db = getDb();
   const now = new Date().toISOString().slice(0, 10);
   const schedules = db.prepare(
     'SELECT * FROM price_schedules WHERE effective_date <= ? AND applied = 0'
@@ -99,4 +183,4 @@ function applyScheduledPrices() {
   return schedules.length;
 }
 
-module.exports = { getDb, applyScheduledPrices };
+module.exports = { initDatabase, getDb, applyScheduledPrices };

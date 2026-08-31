@@ -91,13 +91,13 @@ echo  ==========================================
 echo.
 echo   המערכת עולה!
 echo.
-echo   כתובת: http://localhost:3000
+echo   כתובת: http://localhost:3001
 echo.
 
 for /f "tokens=2 delims=:" %%a in ('ipconfig ^| findstr /c:"IPv4"') do (
     for /f "tokens=1" %%b in ("%%a") do (
         echo   ממחשב אחר ברשת:
-        echo   http://%%b:3000
+        echo   http://%%b:3001
         echo.
     )
 )
@@ -109,5 +109,5 @@ echo.
 echo  לסגירה: סגור את החלון הזה
 echo.
 
-start http://localhost:3000
+start http://localhost:3001
 node src/server.js

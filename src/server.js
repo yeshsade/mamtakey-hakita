@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const { getDb, applyScheduledPrices } = require('./database');
+const { initDatabase, applyScheduledPrices } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -23,10 +23,6 @@ app.use((req, res, next) => {
   next();
 });
 
-getDb();
-applyScheduledPrices();
-setInterval(applyScheduledPrices, 60 * 60 * 1000);
-
 const bankRoutes = require('./routes/bank');
 const storeRoutes = require('./routes/store');
 const adminRoutes = require('./routes/admin');
@@ -41,6 +37,14 @@ app.use('/admin', adminRoutes);
 app.use('/auth', authRoutes);
 app.use('/api', apiRoutes);
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`ממתקי הכיתה רץ על http://localhost:${PORT}`);
-});
+async function start() {
+  await initDatabase();
+  applyScheduledPrices();
+  setInterval(applyScheduledPrices, 60 * 60 * 1000);
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`ממתקי הכיתה רץ על http://localhost:${PORT}`);
+  });
+}
+
+start();
