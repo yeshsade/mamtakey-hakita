@@ -1,0 +1,206 @@
+<%- include('partials/header', { extraCss: 'admin' }) %>
+
+<div class="admin-page">
+  <div class="admin-header">
+    <a href="/" class="admin-logo">ניהול ממתקי הכיתה</a>
+    <div class="admin-nav">
+      <a href="/bank">בנק</a>
+      <a href="/store">חנות</a>
+      <a href="/auth/logout">יציאה</a>
+    </div>
+  </div>
+
+  <div class="admin-content">
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchTab('students')">תלמידים</button>
+      <button class="admin-tab" onclick="switchTab('products')">מוצרים</button>
+      <button class="admin-tab" onclick="switchTab('prices')">מחירים מתוזמנים</button>
+      <button class="admin-tab" onclick="switchTab('tools')">כלים</button>
+    </div>
+
+    <!-- תלמידים -->
+    <div class="admin-section active" id="section-students">
+      <div class="admin-card">
+        <h3>הוספת תלמיד</h3>
+        <form method="POST" action="/admin/student/add" class="admin-form-row">
+          <input type="text" name="name" placeholder="שם התלמיד" required autocomplete="off">
+          <button type="submit" class="btn btn-primary">הוסף</button>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3>רשימת תלמידים (<%= students.length %>)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>שם</th>
+              <th>ברקוד</th>
+              <th>יתרה</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% students.forEach(function(s) { %>
+              <tr>
+                <td><strong><%= s.name %></strong></td>
+                <td style="font-size: 0.8rem; color: #888;"><%= s.barcode %></td>
+                <td><span class="admin-badge admin-badge-balance"><%= s.balance %> נק׳</span></td>
+                <td>
+                  <div class="admin-actions-cell">
+                    <form method="POST" action="/admin/student/remove/<%= s.id %>"
+                          onsubmit="return confirm('להסיר את <%= s.name %>?')">
+                      <button type="submit" class="admin-delete-btn">הסר</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- מוצרים -->
+    <div class="admin-section" id="section-products">
+      <div class="admin-card">
+        <h3>הוספת מוצר</h3>
+        <form method="POST" action="/admin/product/add">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>שם המוצר</label>
+              <input type="text" name="name" placeholder="למשל: במבה" required autocomplete="off">
+            </div>
+            <div class="admin-form-group">
+              <label>ברקוד (אופציונלי)</label>
+              <input type="text" name="barcode" placeholder="סרוק או הקלד" autocomplete="off">
+            </div>
+            <div class="admin-form-group">
+              <label>מחיר (נקודות)</label>
+              <input type="number" name="price" placeholder="5" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-primary">הוסף</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3>רשימת מוצרים (<%= products.length %>)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>שם</th>
+              <th>ברקוד</th>
+              <th>מחיר</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% products.forEach(function(p) { %>
+              <tr>
+                <td><strong><%= p.name %></strong></td>
+                <td style="font-size: 0.8rem; color: #888;"><%= p.barcode || '—' %></td>
+                <td><span class="admin-badge" style="background:#f3f0ff;color:#7c3aed;"><%= p.price %> נק׳</span></td>
+                <td>
+                  <div class="admin-actions-cell">
+                    <form method="POST" action="/admin/product/remove/<%= p.id %>"
+                          onsubmit="return confirm('להסיר את <%= p.name %>?')">
+                      <button type="submit" class="admin-delete-btn">הסר</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- מחירים מתוזמנים -->
+    <div class="admin-section" id="section-prices">
+      <div class="admin-card">
+        <h3>תזמון שינוי מחיר</h3>
+        <form method="POST" action="/admin/price-schedule/add">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>מוצר</label>
+              <select name="product_id" required>
+                <option value="">בחר מוצר</option>
+                <% products.forEach(function(p) { %>
+                  <option value="<%= p.id %>"><%= p.name %> (כרגע <%= p.price %> נק׳)</option>
+                <% }); %>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label>מחיר חדש</label>
+              <input type="number" name="new_price" placeholder="10" min="1" required>
+            </div>
+            <div class="admin-form-group">
+              <label>תאריך שינוי</label>
+              <input type="date" name="effective_date" required>
+            </div>
+            <button type="submit" class="btn btn-primary">תזמן</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3>שינויים מתוזמנים</h3>
+        <% if (schedules.length === 0) { %>
+          <p style="color: #bbb; text-align: center; padding: 16px;">אין שינויים מתוזמנים</p>
+        <% } else { %>
+          <table>
+            <thead>
+              <tr>
+                <th>מוצר</th>
+                <th>מחיר חדש</th>
+                <th>תאריך</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% schedules.forEach(function(s) { %>
+                <tr>
+                  <td><%= s.product_name %></td>
+                  <td><%= s.new_price %> נק׳</td>
+                  <td><%= s.effective_date %></td>
+                  <td>
+                    <form method="POST" action="/admin/price-schedule/remove/<%= s.id %>">
+                      <button type="submit" class="admin-delete-btn">בטל</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- כלים -->
+    <div class="admin-section" id="section-tools">
+      <div class="admin-tools">
+        <a href="/admin/print-cards" class="admin-tool-card">
+          <div class="admin-tool-icon">🎴</div>
+          <div class="admin-tool-title">הדפסת כרטיסים</div>
+          <div class="admin-tool-desc">הדפסת כרטיסי ברקוד לתלמידים</div>
+        </a>
+        <a href="/admin/distribution-sheet" class="admin-tool-card">
+          <div class="admin-tool-icon">📋</div>
+          <div class="admin-tool-title">דף חלוקה יומי</div>
+          <div class="admin-tool-desc">יצירת דף חלוקת נקודות</div>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tabName) {
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById(`section-${tabName}`).classList.add('active');
+}
+</script>
+
+<%- include('partials/footer', { extraJs: undefined }) %>

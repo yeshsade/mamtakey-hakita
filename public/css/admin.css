@@ -1,0 +1,205 @@
+.admin-page {
+  min-height: 100vh;
+  background: #f5f5f7;
+}
+
+.admin-header {
+  background: #1a1a2e;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.admin-nav {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-nav a {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.admin-nav a:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+
+.admin-content {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 0 24px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 4px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.admin-tab {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-tab.active {
+  background: #1a1a2e;
+  color: #fff;
+}
+
+.admin-section {
+  display: none;
+}
+
+.admin-section.active {
+  display: block;
+}
+
+.admin-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  margin-bottom: 20px;
+}
+
+.admin-card h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.admin-form-row {
+  display: flex;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.admin-form-row input,
+.admin-form-row select {
+  flex: 1;
+}
+
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.admin-form-group label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #888;
+}
+
+.admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.admin-badge-balance {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.admin-actions-cell {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.admin-actions-cell button {
+  padding: 4px 10px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.admin-delete-btn {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.admin-delete-btn:hover {
+  background: #fee2e2;
+}
+
+.admin-tools {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.admin-tool-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.2s;
+}
+
+.admin-tool-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.admin-tool-icon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.admin-tool-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-tool-desc {
+  font-size: 0.8rem;
+  color: #888;
+  margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+  .admin-form-row { flex-direction: column; }
+  .admin-tabs { flex-wrap: wrap; }
+}

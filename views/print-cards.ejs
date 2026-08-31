@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>הדפסת כרטיסים - ממתקי הכיתה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Rubik', sans-serif; direction: rtl; padding: 20px; }
+
+    .no-print { margin-bottom: 20px; text-align: center; }
+    .no-print button {
+      padding: 12px 32px;
+      background: #1a1a2e;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-family: 'Rubik', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0 8px;
+    }
+    .no-print a {
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .student-card {
+      border: 2px solid #e5e5ea;
+      border-radius: 14px;
+      padding: 20px 16px;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+
+    .student-card-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .student-card-subtitle {
+      font-size: 0.75rem;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .student-card svg { max-width: 100%; }
+
+    @media print {
+      .no-print { display: none; }
+      body { padding: 0; }
+      .student-card { border: 1px solid #ccc; border-radius: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button onclick="window.print()">הדפס כרטיסים</button>
+    <br><br>
+    <a href="/admin">חזרה לניהול</a>
+  </div>
+
+  <div class="cards-grid">
+    <% students.forEach(function(s) { %>
+      <div class="student-card">
+        <div class="student-card-name"><%= s.name %></div>
+        <div class="student-card-subtitle">ממתקי הכיתה</div>
+        <svg id="barcode-<%= s.id %>"></svg>
+      </div>
+    <% }); %>
+  </div>
+
+  <script>
+    <% students.forEach(function(s) { %>
+      JsBarcode("#barcode-<%= s.id %>", "<%= s.barcode %>", {
+        format: "CODE128",
+        width: 1.5,
+        height: 50,
+        fontSize: 12,
+        margin: 4
+      });
+    <% }); %>
+  </script>
+</body>
+</html>

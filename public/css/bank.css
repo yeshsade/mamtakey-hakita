@@ -1,0 +1,294 @@
+.bank-page {
+  min-height: 100vh;
+  background: #f7f7f7;
+}
+
+.bank-header {
+  background: #d12a2f;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(209, 42, 47, 0.2);
+}
+
+.bank-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.bank-logo-text {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.bank-logo-sub {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: rgba(255,255,255,0.85);
+}
+
+.bank-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.bank-nav a {
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.bank-nav a:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.bank-content {
+  max-width: 600px;
+  margin: 32px auto;
+  padding: 0 24px;
+}
+
+.bank-scan-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  text-align: center;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+}
+
+.bank-scan-title {
+  font-size: 1.1rem;
+  color: #888;
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.bank-barcode-input {
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 1.4rem;
+  text-align: center;
+  border: 3px solid #e8e8e8;
+  border-radius: 14px;
+  letter-spacing: 3px;
+  font-family: 'Rubik', sans-serif;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.bank-barcode-input:focus {
+  border-color: #d12a2f;
+  box-shadow: 0 0 0 4px rgba(209, 42, 47, 0.1);
+}
+
+.bank-account {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+  margin-bottom: 24px;
+}
+
+.bank-account-header {
+  background: linear-gradient(135deg, #d12a2f 0%, #a01f23 100%);
+  padding: 28px 32px;
+  color: #fff;
+}
+
+.bank-account-name {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.bank-account-id {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.bank-balance-section {
+  padding: 32px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.bank-balance-label {
+  font-size: 0.9rem;
+  color: #999;
+  margin-bottom: 8px;
+}
+
+.bank-balance-amount {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-balance-currency {
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #999;
+  margin-right: 4px;
+}
+
+.bank-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 24px 32px;
+}
+
+.bank-action-btn {
+  padding: 14px 20px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.bank-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.bank-deposit-btn {
+  background: #22c55e;
+  color: #fff;
+}
+
+.bank-withdraw-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.bank-amount-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.bank-amount-dialog {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.bank-amount-dialog h3 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+.bank-amount-input {
+  width: 100%;
+  padding: 16px;
+  font-size: 2rem;
+  text-align: center;
+  border: 3px solid #e8e8e8;
+  border-radius: 14px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 700;
+  outline: none;
+  margin-bottom: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-amount-input:focus {
+  border-color: #d12a2f;
+}
+
+.bank-dialog-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.bank-dialog-actions button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.bank-confirm-btn {
+  background: #d12a2f;
+  color: #fff;
+}
+
+.bank-cancel-btn {
+  background: #f0f0f5;
+  color: #555;
+}
+
+.bank-history {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+}
+
+.bank-history h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #555;
+}
+
+.bank-tx-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.bank-tx-item:last-child {
+  border-bottom: none;
+}
+
+.bank-tx-desc {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.bank-tx-date {
+  font-size: 0.75rem;
+  color: #bbb;
+  margin-top: 2px;
+}
+
+.bank-tx-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.bank-tx-amount.positive { color: #22c55e; }
+.bank-tx-amount.negative { color: #ef4444; }

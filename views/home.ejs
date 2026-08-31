@@ -1,0 +1,30 @@
+<%- include('partials/header', { extraCss: 'home' }) %>
+
+<div class="home-container">
+  <div class="home-hero">
+    <h1 class="home-title">ממתקי הכיתה</h1>
+    <p class="home-subtitle">בנק הנקודות וחנות הממתקים של הכיתה</p>
+  </div>
+
+  <div class="home-cards">
+    <a href="/bank" class="home-card bank-card">
+      <div class="home-card-icon">🏦</div>
+      <h2>בנק</h2>
+      <p>הפקדה ומשיכה של נקודות</p>
+    </a>
+
+    <a href="/store" class="home-card store-card">
+      <div class="home-card-icon">🍬</div>
+      <h2>חנות</h2>
+      <p>קנייה של ממתקים</p>
+    </a>
+
+    <a href="/admin" class="home-card admin-card">
+      <div class="home-card-icon">⚙️</div>
+      <h2>ניהול</h2>
+      <p>ניהול תלמידים ומוצרים</p>
+    </a>
+  </div>
+</div>
+
+<%- include('partials/footer', { extraJs: undefined }) %>

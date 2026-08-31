@@ -1,0 +1,18 @@
+{
+  "name": "mamtakey-hakita",
+  "version": "1.0.0",
+  "description": "ממתקי הכיתה - מערכת בנק נקודות וחנות ממתקים לכיתה",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "express-session": "^1.18.0",
+    "bcryptjs": "^3.0.3",
+    "jsbarcode": "^3.11.6"
+  }
+}

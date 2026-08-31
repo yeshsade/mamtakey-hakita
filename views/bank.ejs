@@ -1,0 +1,72 @@
+<%- include('partials/header', { extraCss: 'bank' }) %>
+
+<div class="bank-page">
+  <div class="bank-header">
+    <a href="/" class="bank-logo">
+      <div>
+        <div class="bank-logo-text">בנק ממתקי הכיתה</div>
+        <div class="bank-logo-sub">סניף הכיתה</div>
+      </div>
+    </a>
+    <div class="bank-nav">
+      <a href="/">ראשי</a>
+      <a href="/store">חנות</a>
+    </div>
+  </div>
+
+  <div class="bank-content">
+    <div class="bank-scan-section" id="scanSection">
+      <div class="bank-scan-title">סרוק כרטיס תלמיד</div>
+      <input type="text" class="bank-barcode-input" id="barcodeInput"
+             placeholder="סריקת ברקוד..."
+             autofocus autocomplete="off">
+    </div>
+
+    <div id="accountSection" class="hidden fade-in">
+      <div class="bank-account">
+        <div class="bank-account-header">
+          <div class="bank-account-name" id="studentName"></div>
+          <div class="bank-account-id">מספר חשבון: <span id="studentBarcode"></span></div>
+        </div>
+        <div class="bank-balance-section">
+          <div class="bank-balance-label">יתרה נוכחית</div>
+          <div class="bank-balance-amount">
+            <span id="balanceAmount">0</span>
+            <span class="bank-balance-currency">נק׳</span>
+          </div>
+        </div>
+        <div class="bank-actions">
+          <button class="bank-action-btn bank-deposit-btn" onclick="openAmountDialog('deposit')">
+            ➕ הפקדה
+          </button>
+          <button class="bank-action-btn bank-withdraw-btn" onclick="openAmountDialog('withdraw')">
+            ➖ משיכה
+          </button>
+        </div>
+      </div>
+
+      <div class="bank-history" id="historySection">
+        <h3>תנועות אחרונות</h3>
+        <div id="historyList"></div>
+      </div>
+
+      <div style="text-align: center; margin-top: 20px;">
+        <button class="btn btn-primary" onclick="resetScan()">סרוק תלמיד אחר</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bank-amount-modal hidden" id="amountModal">
+    <div class="bank-amount-dialog">
+      <h3 id="dialogTitle">הפקדה</h3>
+      <input type="number" class="bank-amount-input" id="amountInput"
+             placeholder="0" min="1" autocomplete="off">
+      <div class="bank-dialog-actions">
+        <button class="bank-confirm-btn" id="confirmBtn" onclick="confirmAction()">אישור</button>
+        <button class="bank-cancel-btn" onclick="closeAmountDialog()">ביטול</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer', { extraJs: 'bank' }) %>
