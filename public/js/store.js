@@ -8,6 +8,13 @@ const productBarcodeInput = document.getElementById('productBarcodeInput');
 const scanSection = document.getElementById('scanSection');
 const shopSection = document.getElementById('shopSection');
 
+if (window.__sessionUser && window.__sessionUser.role === 'admin') {
+  operatorMode = true;
+  document.getElementById('operatorBadge').classList.remove('hidden');
+  document.getElementById('operatorName').textContent = window.__sessionUser.username + ' (מנהל)';
+  scanSection.querySelector('.store-scan-title').textContent = 'סרוק כרטיס תלמיד כדי להתחיל';
+}
+
 studentBarcodeInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter') {
     const barcode = studentBarcodeInput.value.trim();

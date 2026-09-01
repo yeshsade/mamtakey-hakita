@@ -88,6 +88,27 @@ router.get('/products', (req, res) => {
   res.json(products);
 });
 
+router.post('/student/:id/set-balance', (req, res) => {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.json({ success: false, error: 'אין הרשאה' });
+  }
+  const { balance } = req.body;
+  const newBalance = parseInt(balance);
+  if (isNaN(newBalance) || newBalance < 0) return res.json({ success: false, error: 'סכום לא תקין' });
+
+  const db = getDb();
+  const student = db.prepare('SELECT * FROM students WHERE id = ? AND active = 1').get(req.params.id);
+  if (!student) return res.json({ success: false, error: 'תלמיד לא נמצא' });
+
+  const diff = newBalance - student.balance;
+  db.prepare('UPDATE students SET balance = ? WHERE id = ?').run(newBalance, req.params.id);
+  if (diff !== 0) {
+    db.prepare('INSERT INTO transactions (student_id, type, amount, description) VALUES (?, ?, ?, ?)')
+      .run(req.params.id, diff > 0 ? 'deposit' : 'withdraw', Math.abs(diff), 'עדכון ידני ע״י מנהל');
+  }
+  res.json({ success: true, balance: newBalance });
+});
+
 router.get('/student/:id/history', (req, res) => {
   const db = getDb();
   const transactions = db.prepare(

@@ -90,4 +90,7 @@
   </div>
 </div>
 
+<script>
+  window.__sessionUser = <%- JSON.stringify(sessionUser) %>;
+</script>
 <%- include('partials/footer', { extraJs: 'store' }) %>

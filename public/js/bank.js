@@ -8,6 +8,13 @@ const accountSection = document.getElementById('accountSection');
 const amountModal = document.getElementById('amountModal');
 const amountInput = document.getElementById('amountInput');
 
+if (window.__sessionUser && window.__sessionUser.role === 'admin') {
+  operatorMode = true;
+  document.getElementById('operatorBadge').classList.remove('hidden');
+  document.getElementById('operatorName').textContent = window.__sessionUser.username + ' (מנהל)';
+  scanSection.querySelector('.bank-scan-title').textContent = 'סרוק כרטיס תלמיד';
+}
+
 barcodeInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter') {
     const barcode = barcodeInput.value.trim();

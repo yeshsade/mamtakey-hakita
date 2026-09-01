@@ -199,6 +199,20 @@
   margin-top: 4px;
 }
 
+.admin-balance-cell {
+  display: inline-block;
+}
+
+.admin-balance-edit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.admin-balance-edit.hidden {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .admin-form-row { flex-direction: column; }
   .admin-tabs { flex-wrap: wrap; }

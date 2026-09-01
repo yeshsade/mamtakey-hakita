@@ -45,7 +45,16 @@
               <tr>
                 <td><strong><%= s.name %></strong></td>
                 <td style="font-size: 0.8rem; color: #888;"><%= s.barcode %></td>
-                <td><span class="admin-badge admin-badge-balance"><%= s.balance %> נק׳</span></td>
+                <td>
+                  <div class="admin-balance-cell" id="balance-<%= s.id %>">
+                    <span class="admin-badge admin-badge-balance" onclick="editBalance(<%= s.id %>, <%= s.balance %>)" style="cursor:pointer;" title="לחץ לעריכה"><%= s.balance %> נק׳ ✏️</span>
+                  </div>
+                  <div class="admin-balance-edit hidden" id="balance-edit-<%= s.id %>">
+                    <input type="number" id="balance-input-<%= s.id %>" value="<%= s.balance %>" min="0" style="width:80px;padding:6px 8px;font-size:0.9rem;">
+                    <button class="btn btn-primary btn-sm" onclick="saveBalance(<%= s.id %>)">שמור</button>
+                    <button class="btn btn-sm" onclick="cancelBalance(<%= s.id %>, <%= s.balance %>)" style="background:#eee;color:#555;">ביטול</button>
+                  </div>
+                </td>
                 <td>
                   <div class="admin-actions-cell">
                     <form method="POST" action="/admin/student/remove/<%= s.id %>"
@@ -284,6 +293,38 @@ function switchTab(tabName) {
   document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById(`section-${tabName}`).classList.add('active');
+}
+
+function editBalance(id, current) {
+  document.getElementById('balance-' + id).classList.add('hidden');
+  document.getElementById('balance-edit-' + id).classList.remove('hidden');
+  const input = document.getElementById('balance-input-' + id);
+  input.value = current;
+  input.focus();
+  input.select();
+}
+
+function cancelBalance(id, original) {
+  document.getElementById('balance-edit-' + id).classList.add('hidden');
+  document.getElementById('balance-' + id).classList.remove('hidden');
+}
+
+async function saveBalance(id) {
+  const input = document.getElementById('balance-input-' + id);
+  const newBalance = parseInt(input.value);
+  if (isNaN(newBalance) || newBalance < 0) { alert('סכום לא תקין'); return; }
+
+  const res = await fetch('/api/student/' + id + '/set-balance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ balance: newBalance })
+  });
+  const data = await res.json();
+  if (data.success) {
+    location.reload();
+  } else {
+    alert(data.error);
+  }
 }
 
 const params = new URLSearchParams(window.location.search);
