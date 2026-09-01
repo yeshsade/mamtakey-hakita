@@ -90,6 +90,6 @@
 </div>
 
 <script>
-  window.__sessionUser = <%- JSON.stringify(sessionUser) %>;
+  window.__sessionUser = <%- JSON.stringify(typeof sessionUser !== 'undefined' ? sessionUser : null) %>;
 </script>
 <%- include('partials/footer', { extraJs: 'bank' }) %>

@@ -30,6 +30,15 @@
       </div>
 
       <div class="admin-card">
+        <h3>הוספה מרובה</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:12px;">הדביקו רשימת שמות, שם אחד בכל שורה</p>
+        <form method="POST" action="/admin/students/bulk-add">
+          <textarea name="names" rows="6" placeholder="דני&#10;שרה&#10;יוסי&#10;מיכל" style="width:100%;padding:12px;border:1px solid #e5e5ea;border-radius:10px;font-family:'Rubik',sans-serif;font-size:0.95rem;resize:vertical;" required></textarea>
+          <button type="submit" class="btn btn-primary" style="margin-top:12px;">הוסף הכל</button>
+        </form>
+      </div>
+
+      <div class="admin-card">
         <h3>רשימת תלמידים (<%= students.length %>)</h3>
         <table>
           <thead>

@@ -7,30 +7,85 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Rubik', sans-serif; direction: rtl; padding: 20px; }
+    body { font-family: 'Rubik', sans-serif; direction: rtl; padding: 20px; background: #f5f5f7; }
 
-    .no-print { margin-bottom: 20px; text-align: center; }
-    .no-print button {
-      padding: 12px 32px;
-      background: #1a1a2e;
-      color: #fff;
+    .no-print { max-width: 800px; margin: 0 auto 24px; }
+
+    .control-bar {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+
+    .control-bar h2 { font-size: 1.1rem; margin-bottom: 12px; }
+
+    .control-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .control-actions button, .control-actions a.btn {
+      padding: 10px 24px;
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       font-family: 'Rubik', sans-serif;
-      font-size: 1rem;
+      font-size: 0.9rem;
       font-weight: 600;
       cursor: pointer;
-      margin: 0 8px;
+      text-decoration: none;
+      display: inline-block;
     }
-    .no-print a {
-      color: #888;
-      font-size: 0.9rem;
+
+    .btn-print { background: #1a1a2e; color: #fff; }
+    .btn-select { background: #f0fdf4; color: #16a34a; }
+    .btn-back { background: #f5f5f7; color: #888; }
+
+    .select-list {
+      background: #fff;
+      border-radius: 14px;
+      padding: 20px 24px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.04);
+      margin-bottom: 16px;
+    }
+
+    .select-list h3 { font-size: 1rem; margin-bottom: 12px; color: #333; }
+
+    .select-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 8px;
+    }
+
+    .select-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .select-item:hover { background: #f5f5f7; }
+    .select-item input { accent-color: #1a1a2e; }
+    .select-item label { cursor: pointer; font-size: 0.9rem; }
+
+    .section-divider {
+      border: none;
+      border-top: 2px dashed #e5e5ea;
+      margin: 24px 0;
     }
 
     .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
+      max-width: 800px;
+      margin: 0 auto;
     }
 
     .student-card {
@@ -39,6 +94,12 @@
       padding: 20px 16px;
       text-align: center;
       page-break-inside: avoid;
+      background: #fff;
+    }
+
+    .student-card.operator-card {
+      border-color: #4ECDC4;
+      background: linear-gradient(to bottom, #f0fdf4, #fff);
     }
 
     .student-card-name {
@@ -53,42 +114,111 @@
       margin-bottom: 12px;
     }
 
+    .operator-label {
+      display: inline-block;
+      background: #4ECDC4;
+      color: #fff;
+      padding: 2px 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
     .student-card svg { max-width: 100%; }
 
+    .hidden { display: none !important; }
+
     @media print {
-      .no-print { display: none; }
-      body { padding: 0; }
+      .no-print { display: none !important; }
+      body { padding: 0; background: #fff; }
       .student-card { border: 1px solid #ccc; border-radius: 8px; }
+      .student-card.hidden { display: none !important; }
     }
   </style>
 </head>
 <body>
   <div class="no-print">
-    <button onclick="window.print()">הדפס כרטיסים</button>
-    <br><br>
-    <a href="/admin">חזרה לניהול</a>
+    <div class="control-bar">
+      <h2>הדפסת כרטיסי ברקוד</h2>
+      <div class="control-actions">
+        <button class="btn-print" onclick="window.print()">🖨️ הדפס</button>
+        <button class="btn-select" onclick="selectAll(true)">בחר הכל</button>
+        <button class="btn-select" onclick="selectAll(false)">נקה הכל</button>
+        <a href="/admin" class="btn btn-back">חזרה לניהול</a>
+      </div>
+    </div>
+
+    <div class="select-list">
+      <h3>👦 תלמידים (<%= students.length %>)</h3>
+      <div class="select-grid">
+        <% students.forEach(function(s) { %>
+          <div class="select-item">
+            <input type="checkbox" id="check-s-<%= s.id %>" checked onchange="toggleCard('student-<%= s.id %>', this.checked)">
+            <label for="check-s-<%= s.id %>"><%= s.name %></label>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+
+    <% if (operators.length > 0) { %>
+    <div class="select-list">
+      <h3>🔑 מפעילים (<%= operators.length %>)</h3>
+      <div class="select-grid">
+        <% operators.forEach(function(op) { %>
+          <div class="select-item">
+            <input type="checkbox" id="check-o-<%= op.id %>" checked onchange="toggleCard('operator-<%= op.id %>', this.checked)">
+            <label for="check-o-<%= op.id %>"><%= op.username %></label>
+          </div>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
   </div>
 
   <div class="cards-grid">
     <% students.forEach(function(s) { %>
-      <div class="student-card">
+      <div class="student-card" id="student-<%= s.id %>">
         <div class="student-card-name"><%= s.name %></div>
         <div class="student-card-subtitle">ממתקי הכיתה</div>
-        <svg id="barcode-<%= s.id %>"></svg>
+        <svg id="barcode-s-<%= s.id %>"></svg>
+      </div>
+    <% }); %>
+
+    <% operators.forEach(function(op) { %>
+      <div class="student-card operator-card" id="operator-<%= op.id %>">
+        <div class="operator-label">מפעיל</div>
+        <div class="student-card-name"><%= op.username %></div>
+        <div class="student-card-subtitle">כרטיס מפעיל - ממתקי הכיתה</div>
+        <svg id="barcode-o-<%= op.id %>"></svg>
       </div>
     <% }); %>
   </div>
 
   <script>
     <% students.forEach(function(s) { %>
-      JsBarcode("#barcode-<%= s.id %>", "<%= s.barcode %>", {
-        format: "CODE128",
-        width: 1.5,
-        height: 50,
-        fontSize: 12,
-        margin: 4
+      JsBarcode("#barcode-s-<%= s.id %>", "<%= s.barcode %>", {
+        format: "CODE128", width: 1.5, height: 50, fontSize: 12, margin: 4
       });
     <% }); %>
+    <% operators.forEach(function(op) { %>
+      JsBarcode("#barcode-o-<%= op.id %>", "<%= op.barcode %>", {
+        format: "CODE128", width: 1.5, height: 50, fontSize: 12, margin: 4
+      });
+    <% }); %>
+
+    function toggleCard(id, show) {
+      var card = document.getElementById(id);
+      if (show) card.classList.remove('hidden');
+      else card.classList.add('hidden');
+    }
+
+    function selectAll(checked) {
+      document.querySelectorAll('.select-item input').forEach(function(cb) {
+        cb.checked = checked;
+        cb.onchange();
+      });
+    }
   </script>
 </body>
 </html>

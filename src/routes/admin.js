@@ -111,7 +111,22 @@ router.post('/operator/regenerate/:id', (req, res) => {
 router.get('/print-cards', (req, res) => {
   const db = getDb();
   const students = db.prepare('SELECT * FROM students WHERE active = 1 ORDER BY name').all();
-  res.render('print-cards', { students });
+  const operators = db.prepare('SELECT id, username, barcode FROM users WHERE role = ? AND active = 1').all('operator');
+  res.render('print-cards', { students, operators });
+});
+
+router.post('/students/bulk-add', (req, res) => {
+  const { names } = req.body;
+  if (!names || !names.trim()) return res.redirect('/admin');
+  const db = getDb();
+  const nameList = names.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+  let added = 0;
+  for (const name of nameList) {
+    const barcode = 'STU' + Date.now().toString().slice(-8) + Math.random().toString(36).slice(-3).toUpperCase();
+    db.prepare('INSERT INTO students (name, barcode) VALUES (?, ?)').run(name, barcode);
+    added++;
+  }
+  res.redirect('/admin');
 });
 
 router.get('/distribution-sheet', (req, res) => {
