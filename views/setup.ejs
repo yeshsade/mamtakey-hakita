@@ -2,28 +2,30 @@
 
 <div class="home-container">
   <div class="setup-card">
-    <div class="setup-icon">🔐</div>
-    <h1>כניסת מנהל</h1>
-    <p>הכנס שם משתמש וסיסמה</p>
+    <div class="setup-icon">🏦🍬</div>
+    <h1>ממתקי הכיתה</h1>
+    <h2>הגדרה ראשונית</h2>
+    <p>צור חשבון מנהל כדי להתחיל</p>
 
     <% if (error) { %>
       <div class="setup-error"><%= error %></div>
     <% } %>
 
-    <form method="POST" action="/auth/login">
+    <form method="POST" action="/auth/setup">
       <div class="setup-field">
         <label>👤 שם משתמש</label>
-        <input type="text" name="username" placeholder="שם משתמש" required autocomplete="off">
+        <input type="text" name="username" placeholder="בחר שם משתמש" required autocomplete="off">
       </div>
       <div class="setup-field">
         <label>🔒 סיסמה</label>
-        <input type="password" name="password" placeholder="סיסמה" required>
+        <input type="password" name="password" placeholder="בחר סיסמה" required>
       </div>
-      <button type="submit" class="btn btn-primary setup-btn">🚀 כניסה</button>
+      <div class="setup-field">
+        <label>🔒 אימות סיסמה</label>
+        <input type="password" name="password2" placeholder="הקלד שוב את הסיסמה" required>
+      </div>
+      <button type="submit" class="btn btn-primary setup-btn">🚀 צור חשבון והתחל</button>
     </form>
-    <div style="text-align: center; margin-top: 16px;">
-      <a href="/" style="color: #888; font-size: 0.85rem;">חזרה לדף הראשי</a>
-    </div>
   </div>
 </div>
 
@@ -37,8 +39,9 @@
     text-align: center;
     box-shadow: 0 8px 32px rgba(0,0,0,0.08);
   }
-  .setup-icon { font-size: 3.5rem; margin-bottom: 16px; }
-  .setup-card h1 { font-size: 2rem; font-weight: 800; margin-bottom: 8px; color: #1a1a2e; }
+  .setup-icon { font-size: 3.5rem; margin-bottom: 16px; letter-spacing: 8px; }
+  .setup-card h1 { font-size: 2rem; font-weight: 800; margin-bottom: 4px; color: #1a1a2e; }
+  .setup-card h2 { font-size: 1.1rem; font-weight: 400; color: #888; margin-bottom: 8px; }
   .setup-card p { font-size: 0.9rem; color: #aaa; margin-bottom: 28px; }
   .setup-error {
     background: #fef2f2; color: #dc2626; padding: 12px; border-radius: 12px;

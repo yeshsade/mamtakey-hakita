@@ -1,7 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
-const { initDatabase, applyScheduledPrices } = require('./database');
+const { initDatabase, applyScheduledPrices, needsSetup } = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -20,6 +20,13 @@ app.use(session({
 
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
+  next();
+});
+
+app.use((req, res, next) => {
+  if (needsSetup() && req.path !== '/auth/setup' && !req.path.startsWith('/css') && !req.path.startsWith('/js')) {
+    return res.redirect('/auth/setup');
+  }
   next();
 });
 

@@ -2,6 +2,7 @@ const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 
 const DB_PATH = path.join(__dirname, '..', 'data', 'mamtakey.db');
 
@@ -76,6 +77,15 @@ function createWrapper(sqlDb) {
   };
 }
 
+function generateOperatorBarcode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = 'MK-';
+  for (let i = 0; i < 6; i++) {
+    code += chars[crypto.randomInt(chars.length)];
+  }
+  return code;
+}
+
 function initTables() {
   dbWrapper.exec(`
     CREATE TABLE IF NOT EXISTS students (
@@ -131,15 +141,13 @@ function initTables() {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password TEXT NOT NULL,
-      role TEXT DEFAULT 'helper'
+      role TEXT DEFAULT 'operator',
+      barcode TEXT UNIQUE,
+      permissions TEXT DEFAULT '',
+      active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT (datetime('now'))
     );
   `);
-
-  const adminExists = dbWrapper.prepare('SELECT id FROM users WHERE username = ?').get('admin');
-  if (!adminExists) {
-    const hash = bcrypt.hashSync('1234', 10);
-    dbWrapper.prepare('INSERT INTO users (username, password, role) VALUES (?, ?, ?)').run('admin', hash, 'admin');
-  }
 
   const studentCount = dbWrapper.prepare('SELECT COUNT(*) as cnt FROM students').get();
   if (studentCount.cnt === 0) {
@@ -164,6 +172,12 @@ function initTables() {
       dbWrapper.prepare('INSERT INTO products (name, barcode, price) VALUES (?, ?, ?)').run(name, barcode, price);
     }
   }
+}
+
+function needsSetup() {
+  if (!dbWrapper) return true;
+  const userCount = dbWrapper.prepare('SELECT COUNT(*) as cnt FROM users').get();
+  return userCount.cnt === 0;
 }
 
 async function initDatabase() {
@@ -207,4 +221,4 @@ function applyScheduledPrices() {
   return schedules.length;
 }
 
-module.exports = { initDatabase, getDb, applyScheduledPrices };
+module.exports = { initDatabase, getDb, applyScheduledPrices, needsSetup, generateOperatorBarcode };

@@ -1,6 +1,7 @@
 let currentStudent = null;
 let products = [];
 let cart = [];
+let operatorMode = false;
 
 const studentBarcodeInput = document.getElementById('studentBarcodeInput');
 const productBarcodeInput = document.getElementById('productBarcodeInput');
@@ -11,6 +12,27 @@ studentBarcodeInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter') {
     const barcode = studentBarcodeInput.value.trim();
     if (!barcode) return;
+
+    if (!operatorMode) {
+      const opData = await api(`/api/operator/${barcode}`);
+      if (opData.found) {
+        const perms = (opData.operator.permissions || '').split(',');
+        if (perms.includes('store')) {
+          operatorMode = true;
+          showToast(`${opData.operator.username} נכנס/ה כמוכר/ת`);
+          document.getElementById('operatorBadge').classList.remove('hidden');
+          document.getElementById('operatorName').textContent = opData.operator.username;
+          studentBarcodeInput.value = '';
+          studentBarcodeInput.focus();
+          return;
+        } else {
+          showToast('אין הרשאת חנות', 'error');
+          studentBarcodeInput.value = '';
+          return;
+        }
+      }
+    }
+
     await loadCustomer(barcode);
   }
 });
@@ -165,7 +187,7 @@ function updateCart() {
     buyBtn.textContent = 'אין מספיק יתרה';
   } else {
     buyBtn.disabled = false;
-    buyBtn.textContent = `לתשלום - ${total} נק׳`;
+    buyBtn.textContent = `💳 לתשלום - ${total} נק׳`;
   }
 }
 
@@ -234,6 +256,13 @@ function resetShop() {
   scanSection.classList.remove('hidden');
   studentBarcodeInput.value = '';
   studentBarcodeInput.focus();
+}
+
+function logoutOperator() {
+  operatorMode = false;
+  document.getElementById('operatorBadge').classList.add('hidden');
+  resetShop();
+  showToast('המפעיל יצא');
 }
 
 document.addEventListener('keydown', (e) => {

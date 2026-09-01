@@ -213,6 +213,40 @@ tr:hover {
   background: #fafafa;
 }
 
+.operator-badge {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  z-index: 150;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.3);
+  animation: fadeIn 0.3s ease;
+}
+
+.operator-badge button {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.operator-badge button:hover {
+  background: rgba(255,255,255,0.35);
+}
+
 @media (max-width: 768px) {
   .container { padding: 16px; }
   .card { padding: 20px; border-radius: 16px; }

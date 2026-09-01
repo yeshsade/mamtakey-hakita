@@ -2,20 +2,21 @@
 
 <div class="admin-page">
   <div class="admin-header">
-    <a href="/" class="admin-logo">ניהול ממתקי הכיתה</a>
+    <a href="/" class="admin-logo">⚙️ ניהול ממתקי הכיתה</a>
     <div class="admin-nav">
-      <a href="/bank">בנק</a>
-      <a href="/store">חנות</a>
-      <a href="/auth/logout">יציאה</a>
+      <a href="/bank">🏦 בנק</a>
+      <a href="/store">🍬 חנות</a>
+      <a href="/auth/logout">🚪 יציאה</a>
     </div>
   </div>
 
   <div class="admin-content">
     <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchTab('students')">תלמידים</button>
-      <button class="admin-tab" onclick="switchTab('products')">מוצרים</button>
-      <button class="admin-tab" onclick="switchTab('prices')">מחירים מתוזמנים</button>
-      <button class="admin-tab" onclick="switchTab('tools')">כלים</button>
+      <button class="admin-tab active" onclick="switchTab('students')">👦 תלמידים</button>
+      <button class="admin-tab" onclick="switchTab('products')">🍫 מוצרים</button>
+      <button class="admin-tab" onclick="switchTab('operators')">🔑 מפעילים</button>
+      <button class="admin-tab" onclick="switchTab('prices')">📅 מחירים מתוזמנים</button>
+      <button class="admin-tab" onclick="switchTab('tools')">🛠️ כלים</button>
     </div>
 
     <!-- תלמידים -->
@@ -115,6 +116,89 @@
       </div>
     </div>
 
+    <!-- מפעילים -->
+    <div class="admin-section" id="section-operators">
+      <div class="admin-card">
+        <h3>🔑 הוספת מפעיל</h3>
+        <p style="color:#888;font-size:0.85rem;margin-bottom:16px;">
+          מפעיל = תלמיד שמקבל כרטיס ברקוד מיוחד לתפעול תחנות (חנות/בנק).
+          <br>הברקוד נוצר אוטומטית ואי אפשר לנחש אותו.
+        </p>
+        <form method="POST" action="/admin/operator/add">
+          <div class="admin-form-row">
+            <div class="admin-form-group">
+              <label>שם המפעיל</label>
+              <input type="text" name="username" placeholder="למשל: דני" required autocomplete="off">
+            </div>
+            <div class="admin-form-group">
+              <label>סיסמה (למסך ניהול)</label>
+              <input type="password" name="password" placeholder="סיסמה" autocomplete="off">
+            </div>
+          </div>
+          <div style="margin: 16px 0; display: flex; gap: 20px; flex-wrap: wrap;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" name="perm_store" value="1" checked> 🍬 חנות
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" name="perm_bank" value="1"> 🏦 בנק
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" name="perm_admin" value="1"> ⚙️ ניהול
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary">➕ צור מפעיל</button>
+        </form>
+      </div>
+
+      <div class="admin-card">
+        <h3>רשימת מפעילים (<%= operators.length %>)</h3>
+        <% if (operators.length === 0) { %>
+          <p style="color: #bbb; text-align: center; padding: 24px;">אין מפעילים עדיין. צור מפעיל חדש למעלה.</p>
+        <% } else { %>
+          <table>
+            <thead>
+              <tr>
+                <th>שם</th>
+                <th>ברקוד (כרטיס)</th>
+                <th>הרשאות</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% operators.forEach(function(op) { %>
+                <tr>
+                  <td><strong><%= op.username %></strong></td>
+                  <td>
+                    <code style="background:#f0fdf4;color:#16a34a;padding:4px 10px;border-radius:8px;font-size:0.9rem;font-weight:700;letter-spacing:1px;">
+                      <%= op.barcode %>
+                    </code>
+                  </td>
+                  <td>
+                    <% const perms = (op.permissions || '').split(','); %>
+                    <% if (perms.includes('store')) { %><span class="admin-badge" style="background:#f3f0ff;color:#7c3aed;">🍬 חנות</span> <% } %>
+                    <% if (perms.includes('bank')) { %><span class="admin-badge" style="background:#fef2f2;color:#dc2626;">🏦 בנק</span> <% } %>
+                    <% if (perms.includes('admin')) { %><span class="admin-badge" style="background:#f0fdf4;color:#16a34a;">⚙️ ניהול</span> <% } %>
+                  </td>
+                  <td>
+                    <div class="admin-actions-cell" style="gap:6px;">
+                      <form method="POST" action="/admin/operator/regenerate/<%= op.id %>"
+                            onsubmit="return confirm('ליצור ברקוד חדש ל<%= op.username %>? הישן יפסיק לעבוד.')">
+                        <button type="submit" class="admin-delete-btn" style="background:#f0fdf4;color:#16a34a;">🔄 ברקוד חדש</button>
+                      </form>
+                      <form method="POST" action="/admin/operator/remove/<%= op.id %>"
+                            onsubmit="return confirm('להסיר את <%= op.username %>?')">
+                        <button type="submit" class="admin-delete-btn">🗑️ הסר</button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        <% } %>
+      </div>
+    </div>
+
     <!-- מחירים מתוזמנים -->
     <div class="admin-section" id="section-prices">
       <div class="admin-card">
@@ -200,6 +284,18 @@ function switchTab(tabName) {
   document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById(`section-${tabName}`).classList.add('active');
+}
+
+const params = new URLSearchParams(window.location.search);
+if (params.get('tab')) {
+  switchTab(params.get('tab'));
+  const tabs = document.querySelectorAll('.admin-tab');
+  tabs.forEach(t => {
+    t.classList.remove('active');
+    if (t.textContent.includes(params.get('tab') === 'operators' ? 'מפעילים' : '')) {
+      t.classList.add('active');
+    }
+  });
 }
 </script>
 

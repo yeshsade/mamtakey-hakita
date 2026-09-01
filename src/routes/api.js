@@ -16,6 +16,19 @@ router.get('/product/:barcode', (req, res) => {
   res.json({ found: true, product });
 });
 
+router.get('/operator/:barcode', (req, res) => {
+  const db = getDb();
+  const user = db.prepare('SELECT id, username, role, permissions FROM users WHERE barcode = ? AND active = 1').get(req.params.barcode);
+  if (!user) return res.json({ found: false });
+  req.session.user = {
+    id: user.id,
+    username: user.username,
+    role: user.role,
+    permissions: user.permissions || ''
+  };
+  res.json({ found: true, operator: user });
+});
+
 router.post('/bank/deposit', (req, res) => {
   const { student_id, amount, description } = req.body;
   const db = getDb();

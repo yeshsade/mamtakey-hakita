@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { getDb } = require('../database');
+const bcrypt = require('bcryptjs');
+const { getDb, generateOperatorBarcode } = require('../database');
 
 function requireAdmin(req, res, next) {
   if (!req.session.user || req.session.user.role !== 'admin') {
@@ -22,7 +23,8 @@ router.get('/', (req, res) => {
     WHERE ps.applied = 0
     ORDER BY ps.effective_date
   `).all();
-  res.render('admin', { students, products, schedules });
+  const operators = db.prepare('SELECT id, username, role, barcode, permissions, active FROM users WHERE role = ? AND active = 1').all('operator');
+  res.render('admin', { students, products, schedules, operators });
 });
 
 router.post('/student/add', (req, res) => {
@@ -71,6 +73,39 @@ router.post('/price-schedule/remove/:id', (req, res) => {
   const db = getDb();
   db.prepare('DELETE FROM price_schedules WHERE id = ?').run(req.params.id);
   res.redirect('/admin');
+});
+
+router.post('/operator/add', (req, res) => {
+  const { username, password } = req.body;
+  const permissions = [];
+  if (req.body.perm_store) permissions.push('store');
+  if (req.body.perm_bank) permissions.push('bank');
+  if (req.body.perm_admin) permissions.push('admin');
+
+  const db = getDb();
+  const existing = db.prepare('SELECT id FROM users WHERE username = ?').get(username);
+  if (existing) {
+    return res.redirect('/admin?error=username_taken');
+  }
+
+  const hash = bcrypt.hashSync(password || '0000', 10);
+  const barcode = generateOperatorBarcode();
+  db.prepare('INSERT INTO users (username, password, role, barcode, permissions) VALUES (?, ?, ?, ?, ?)')
+    .run(username, hash, 'operator', barcode, permissions.join(','));
+  res.redirect('/admin?tab=operators');
+});
+
+router.post('/operator/remove/:id', (req, res) => {
+  const db = getDb();
+  db.prepare('UPDATE users SET active = 0 WHERE id = ? AND role = ?').run(req.params.id, 'operator');
+  res.redirect('/admin?tab=operators');
+});
+
+router.post('/operator/regenerate/:id', (req, res) => {
+  const db = getDb();
+  const barcode = generateOperatorBarcode();
+  db.prepare('UPDATE users SET barcode = ? WHERE id = ? AND role = ?').run(barcode, req.params.id, 'operator');
+  res.redirect('/admin?tab=operators');
 });
 
 router.get('/print-cards', (req, res) => {

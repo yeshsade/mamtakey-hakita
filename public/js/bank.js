@@ -1,5 +1,6 @@
 let currentStudent = null;
 let currentAction = null;
+let operatorMode = false;
 
 const barcodeInput = document.getElementById('barcodeInput');
 const scanSection = document.getElementById('scanSection');
@@ -11,6 +12,27 @@ barcodeInput.addEventListener('keydown', async (e) => {
   if (e.key === 'Enter') {
     const barcode = barcodeInput.value.trim();
     if (!barcode) return;
+
+    if (!operatorMode) {
+      const opData = await api(`/api/operator/${barcode}`);
+      if (opData.found) {
+        const perms = (opData.operator.permissions || '').split(',');
+        if (perms.includes('bank')) {
+          operatorMode = true;
+          showToast(`${opData.operator.username} נכנס/ה כפקיד/ת בנק`);
+          document.getElementById('operatorBadge').classList.remove('hidden');
+          document.getElementById('operatorName').textContent = opData.operator.username;
+          barcodeInput.value = '';
+          barcodeInput.focus();
+          return;
+        } else {
+          showToast('אין הרשאת בנק', 'error');
+          barcodeInput.value = '';
+          return;
+        }
+      }
+    }
+
     await loadStudent(barcode);
   }
 });
@@ -68,6 +90,7 @@ async function loadHistory() {
 function openAmountDialog(action) {
   currentAction = action;
   document.getElementById('dialogTitle').textContent = action === 'deposit' ? 'הפקדה' : 'משיכה';
+  document.getElementById('dialogIcon').textContent = action === 'deposit' ? '💵' : '🏧';
   amountInput.value = '';
   amountModal.classList.remove('hidden');
   setTimeout(() => amountInput.focus(), 100);
@@ -108,6 +131,13 @@ function resetScan() {
   scanSection.classList.remove('hidden');
   barcodeInput.value = '';
   barcodeInput.focus();
+}
+
+function logoutOperator() {
+  operatorMode = false;
+  document.getElementById('operatorBadge').classList.add('hidden');
+  resetScan();
+  showToast('המפעיל יצא');
 }
 
 amountInput.addEventListener('keydown', (e) => {
