@@ -7,28 +7,26 @@ echo.
 echo  ╔══════════════════════════════════════╗
 echo  ║                                      ║
 echo  ║     🍬  ממתקי הכיתה  🏦             ║
-echo  ║     התקנה אוטומטית מלאה              ║
+echo  ║     התקנה ועדכון אוטומטי             ║
 echo  ║                                      ║
 echo  ╚══════════════════════════════════════╝
-echo.
-echo  שב בנוח, הכל קורה לבד...
 echo.
 
 :: קביעת תיקיית התקנה
 set "INSTALL_DIR=%USERPROFILE%\Desktop\ממתקי הכיתה"
 
-:: בדיקה אם כבר מותקן ורץ
+:: בדיקה אם כבר מותקן
 if exist "%INSTALL_DIR%\src\server.js" (
-    echo  [✓] המערכת כבר מותקנת!
-    echo      עובר להפעלה...
+    echo  [✓] המערכת מותקנת - בודק עדכונים...
     echo.
-    cd /d "%INSTALL_DIR%"
-    goto :startserver
+    goto :update
 )
 
 :: ═══════════════════════════════════════
-:: שלב 1: הורדת הפרויקט
+:: התקנה חדשה
 :: ═══════════════════════════════════════
+echo  שב בנוח, הכל קורה לבד...
+echo.
 echo  ── שלב 1/3: מוריד את התוכנה מהאינטרנט ──
 echo.
 
@@ -63,10 +61,41 @@ echo  [✓] הקבצים בשולחן העבודה!
 echo.
 
 cd /d "%INSTALL_DIR%"
+goto :checknode
 
 :: ═══════════════════════════════════════
-:: שלב 2: בדיקת/התקנת Node.js
+:: עדכון מערכת קיימת
 :: ═══════════════════════════════════════
+:update
+
+if exist "%TEMP%\mamtakey.zip" del /q "%TEMP%\mamtakey.zip"
+if exist "%TEMP%\mamtakey-temp" rmdir /s /q "%TEMP%\mamtakey-temp"
+
+powershell -Command "& { $ProgressPreference='SilentlyContinue'; Write-Host '  מוריד גרסה אחרונה מ-GitHub...'; try { Invoke-WebRequest -Uri 'https://github.com/yeshsade/mamtakey-hakita/archive/refs/heads/main.zip' -OutFile '%TEMP%\mamtakey.zip' -UseBasicParsing } catch { Write-Host '  [!] ההורדה נכשלה - ממשיך עם הגרסה הנוכחית.'; goto :skipupdate } }"
+
+if not exist "%TEMP%\mamtakey.zip" (
+    echo  [!] לא הצלחתי להוריד עדכונים - ממשיך עם הגרסה הנוכחית.
+    echo.
+    cd /d "%INSTALL_DIR%"
+    goto :startserver
+)
+
+echo  [✓] הורדה הצליחה - מעדכן קבצים...
+
+:: פריסה לתיקייה זמנית
+powershell -Command "& { $ProgressPreference='SilentlyContinue'; Expand-Archive -Path '%TEMP%\mamtakey.zip' -DestinationPath '%TEMP%\mamtakey-temp' -Force }"
+
+:: העתקת קבצי קוד בלבד - בלי לדרוס data
+powershell -Command "& { $src = '%TEMP%\mamtakey-temp\mamtakey-hakita-main'; $dst = '%INSTALL_DIR%'; $protect = @('data','node'); foreach ($item in Get-ChildItem $src) { if ($protect -contains $item.Name) { continue }; $target = Join-Path $dst $item.Name; if (Test-Path $target) { Remove-Item $target -Recurse -Force }; Copy-Item $item.FullName $target -Recurse -Force }; Remove-Item '%TEMP%\mamtakey-temp' -Recurse -Force; Remove-Item '%TEMP%\mamtakey.zip' -Force; Write-Host '  [✓] העדכון הושלם!' }"
+
+echo.
+cd /d "%INSTALL_DIR%"
+goto :startserver
+
+:: ═══════════════════════════════════════
+:: בדיקת/התקנת Node.js
+:: ═══════════════════════════════════════
+:checknode
 echo  ── שלב 2/3: בודק Node.js ──
 echo.
 
@@ -111,7 +140,7 @@ echo.
 
 :step3
 :: ═══════════════════════════════════════
-:: שלב 3: הגדרת PATH והפעלה
+:: שלב 3: הפעלה
 :: ═══════════════════════════════════════
 echo  ── שלב 3/3: מפעיל את המערכת ──
 echo.
@@ -129,9 +158,7 @@ if not exist "%INSTALL_DIR%\data" mkdir "%INSTALL_DIR%\data"
 echo.
 echo  ╔══════════════════════════════════════╗
 echo  ║                                      ║
-echo  ║     ההתקנה הושלמה בהצלחה! 🎉        ║
-echo  ║                                      ║
-echo  ║     המערכת עולה עכשיו...             ║
+echo  ║     המערכת עולה עכשיו! 🎉           ║
 echo  ║                                      ║
 echo  ║     כתובת: http://localhost:3001     ║
 echo  ║                                      ║
