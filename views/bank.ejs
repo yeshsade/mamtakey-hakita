@@ -1,6 +1,14 @@
 <%- include('partials/header', { extraCss: 'bank' }) %>
 
 <div class="bank-page">
+  <div class="bank-floating-coins">
+    <span class="coin c1">🪙</span>
+    <span class="coin c2">💵</span>
+    <span class="coin c3">🪙</span>
+    <span class="coin c4">💰</span>
+    <span class="coin c5">🪙</span>
+  </div>
+
   <div class="bank-header">
     <a href="/" class="bank-logo">
       <span class="bank-logo-icon">🏦</span>
@@ -15,32 +23,29 @@
     </div>
   </div>
 
-  <div class="bank-floating-coins">
-    <span class="coin c1">🪙</span>
-    <span class="coin c2">💵</span>
-    <span class="coin c3">🪙</span>
-    <span class="coin c4">💰</span>
-    <span class="coin c5">🪙</span>
-  </div>
-
   <div class="operator-badge hidden" id="operatorBadge">
     <span>🔑 פקיד/ת: <strong id="operatorName"></strong></span>
     <button onclick="logoutOperator()">יציאה</button>
   </div>
 
   <div class="bank-content">
-    <div class="bank-scan-section" id="scanSection">
+    <div class="bank-scan-section">
       <div class="bank-scan-icon">💳</div>
-      <div class="bank-scan-title">סרוק כרטיס תלמיד</div>
+      <div class="bank-scan-title">סרוק ברקוד או בחר תלמיד מהרשימה</div>
       <input type="text" class="bank-barcode-input" id="barcodeInput"
-             placeholder="🔍 סריקת ברקוד..."
+             placeholder="🔍 סריקת ברקוד או חיפוש בשם..."
              autofocus autocomplete="off">
+    </div>
+
+    <div class="bank-student-list" id="studentListSection">
+      <div class="bank-students-title">👦 תלמידים</div>
+      <div class="bank-students-grid" id="studentGrid"></div>
     </div>
 
     <div id="accountSection" class="hidden fade-in">
       <div class="bank-account">
         <div class="bank-account-header">
-          <div class="bank-account-avatar">🧑‍🎓</div>
+          <div class="bank-account-avatar" id="studentAvatar">🧑‍🎓</div>
           <div>
             <div class="bank-account-name" id="studentName"></div>
             <div class="bank-account-id">מספר חשבון: <span id="studentBarcode"></span></div>
@@ -70,7 +75,7 @@
       </div>
 
       <div style="text-align: center; margin-top: 20px;">
-        <button class="btn btn-primary" onclick="resetScan()">🔄 סרוק תלמיד אחר</button>
+        <button class="btn btn-primary" onclick="resetToList()">🔄 חזרה לרשימה</button>
       </div>
     </div>
   </div>

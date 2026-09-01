@@ -88,6 +88,12 @@ router.get('/products', (req, res) => {
   res.json(products);
 });
 
+router.get('/students', (req, res) => {
+  const db = getDb();
+  const students = db.prepare('SELECT id, name, barcode, balance FROM students WHERE active = 1 ORDER BY name').all();
+  res.json(students);
+});
+
 router.post('/student/:id/set-balance', (req, res) => {
   if (!req.session.user || req.session.user.role !== 'admin') {
     return res.json({ success: false, error: 'אין הרשאה' });
