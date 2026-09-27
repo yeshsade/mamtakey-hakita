@@ -78,7 +78,7 @@ app.get('/class', (req, res) => {
   if (!a) return res.redirect('/login');
   const classes = db.all('SELECT id, name, daily_cap FROM classes ORDER BY id');
   const current = Number(req.query.c) || classes[0].id;
-  const fontKey = FONTS[req.query.font] ? req.query.font : 'plex';
+  const fontKey = FONTS[req.query.font] ? req.query.font : 'secular';
   res.render('class', {
     actor: a, classes, currentId: current,
     font: FONTS[fontKey], fontKey, fonts: FONTS
