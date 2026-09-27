@@ -7,8 +7,9 @@
   --ink:#16302C; --soft:#4A625D; --faint:#7E9289; --hair:#DFE7E3;
   --teal:#0F766E; --coral:#D64637; --coral-soft:#FBE9E6;
   --grey:#A3B1AD; --blue:#2E8AB4; --gold:#C88C14;
-  --h:'Heebo','Arial Hebrew',sans-serif;
-  --a:'Assistant','Arial Hebrew',sans-serif;
+  /* ברירת מחדל; class.ejs דורס את --h לפי ?font= */
+  --h:'IBM Plex Sans Hebrew','Arial Hebrew',sans-serif;
+  --a:'IBM Plex Sans Hebrew','Arial Hebrew',sans-serif;
   --band:0 2px 10px rgba(22,48,44,.05);
 }
 *{box-sizing:border-box}

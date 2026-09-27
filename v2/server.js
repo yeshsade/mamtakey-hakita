@@ -66,12 +66,23 @@ app.post('/api/logout', (req, res) => {
 });
 
 /* ---------------- the class screen ---------------- */
+// the nine locally-hosted Hebrew families. ?font=<key> swaps the display face.
+const FONTS = {
+  frankruhl: 'Frank Ruhl Libre', david: 'David Libre', miriam: 'Miriam Libre',
+  suez: 'Suez One', secular: 'Secular One', karantina: 'Karantina',
+  plex: 'IBM Plex Sans Hebrew', alef: 'Alef', bellefair: 'Bellefair'
+};
+
 app.get('/class', (req, res) => {
   const a = actor(req);
   if (!a) return res.redirect('/login');
   const classes = db.all('SELECT id, name, daily_cap FROM classes ORDER BY id');
   const current = Number(req.query.c) || classes[0].id;
-  res.render('class', { actor: a, classes, currentId: current });
+  const fontKey = FONTS[req.query.font] ? req.query.font : 'plex';
+  res.render('class', {
+    actor: a, classes, currentId: current,
+    font: FONTS[fontKey], fontKey, fonts: FONTS
+  });
 });
 
 app.get('/api/students', requireUser, (req, res) => {
