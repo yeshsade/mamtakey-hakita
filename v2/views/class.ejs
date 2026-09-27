@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ממתקי הכיתה</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="brand">
+    <span class="mark"></span>
+    <span class="h">ממתקי הכיתה</span>
+  </div>
+  <div class="who">
+    <span class="avatar h"><%= actor.name.charAt(0) %></span>
+    <span class="h name"><%= actor.name %></span>
+    <span class="role"><%= actor.role === 'teacher' ? 'מורה' : 'תורן' %></span>
+    <button class="quiet" id="logout">יציאה</button>
+  </div>
+</header>
+
+<nav class="classes">
+  <% classes.forEach(function(c){ %>
+    <a class="chip h <%= c.id === currentId ? 'on' : '' %>" href="/class?c=<%= c.id %>"><%= c.name %></a>
+  <% }); %>
+  <input class="search" id="search" type="search" placeholder="חיפוש תלמיד…" autocomplete="off">
+</nav>
+
+<main>
+  <div class="grid" id="grid" aria-live="polite"></div>
+  <p class="empty" id="empty" hidden>אין תלמידים שתואמים את החיפוש.</p>
+</main>
+
+<!-- amount pad: opens on a student, closes on save. two clicks, nothing more. -->
+<div class="pad" id="pad" hidden>
+  <div class="pad-head">
+    <span class="h pad-name" id="padName"></span>
+    <button class="quiet" id="padClose">סגור</button>
+  </div>
+  <div class="amounts" id="amounts"></div>
+  <div class="pad-foot">
+    <input class="free num" id="free" type="number" inputmode="numeric" placeholder="סכום אחר" min="-20" max="20">
+    <button class="primary h" id="freeGo">שמור</button>
+  </div>
+</div>
+
+<div class="undo" id="undo" hidden>
+  <span class="h undo-text" id="undoText"></span>
+  <button class="undo-btn h" id="undoBtn">בטל</button>
+  <span class="undo-timer" id="undoTimer"></span>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>window.CLASS_ID = <%= currentId %>; window.ROLE = "<%= actor.role %>";</script>
+<script src="/app.js"></script>
+</body>
+</html>

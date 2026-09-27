@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>כניסה · ממתקי הכיתה</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@500;700;900&family=Assistant:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="/app.css">
+<style>
+  .login{max-width:420px;margin:0 auto;padding:48px 24px}
+  .login h1{font-family:var(--h);font-weight:900;font-size:28px;margin:0}
+  .login p{color:var(--soft);margin-top:8px}
+  .users{display:flex;flex-direction:column;gap:8px;margin-top:32px}
+  .u{display:flex;align-items:center;gap:12px;background:var(--surf);
+     border-radius:16px;padding:16px;width:100%;text-align:right}
+  .u:hover{background:var(--tint)}
+  .u .face{width:48px;height:48px;font-size:19px}
+  .u .un{font-family:var(--h);font-weight:700;font-size:16px}
+  .u .ur{color:var(--faint);font-size:13px;font-weight:600}
+  .code{display:flex;gap:8px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="login">
+  <h1>מי נכנס?</h1>
+  <p>בוחרים שם. תורן מקליד גם קוד אישי.</p>
+
+  <div class="users">
+    <% users.forEach(function(u){ %>
+      <button class="u" data-id="<%= u.id %>" data-role="<%= u.role %>">
+        <span class="face h"><%= u.name.charAt(0) %></span>
+        <span>
+          <span class="un"><%= u.name %></span><br>
+          <span class="ur"><%= u.role === 'teacher' ? 'מורה' : 'תורן' %></span>
+        </span>
+      </button>
+    <% }); %>
+  </div>
+
+  <div class="code" id="codeRow" hidden>
+    <input class="free num" id="code" type="password" inputmode="numeric" placeholder="קוד אישי" autocomplete="off">
+    <button class="primary h" id="go">כניסה</button>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+</div>
+
+<script>
+var chosen = null;
+var codeRow = document.getElementById('codeRow');
+var toastEl = document.getElementById('toast');
+
+function toast(m){ toastEl.textContent=m; toastEl.hidden=false;
+  setTimeout(function(){ toastEl.hidden=true; }, 3000); }
+
+function login(id, code){
+  fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({id:id, code:code})})
+    .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error); return j; }); })
+    .then(function(){ location.href='/class'; })
+    .catch(function(e){ toast(e.message); });
+}
+
+document.querySelectorAll('.u').forEach(function(b){
+  b.addEventListener('click', function(){
+    chosen = b.dataset.id;
+    if (b.dataset.role === 'duty') {
+      codeRow.hidden = false;
+      document.getElementById('code').focus();
+    } else {
+      login(chosen, null);
+    }
+  });
+});
+document.getElementById('go').addEventListener('click', function(){
+  login(chosen, document.getElementById('code').value);
+});
+document.getElementById('code').addEventListener('keydown', function(e){
+  if (e.key === 'Enter') document.getElementById('go').click();
+});
+</script>
+</body>
+</html>

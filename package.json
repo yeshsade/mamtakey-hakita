@@ -5,7 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "node --watch src/server.js",
+    "v2": "node v2/server.js"
   },
   "dependencies": {
     "sql.js": "^1.11.0",
