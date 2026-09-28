@@ -1,4 +1,5 @@
-/* מסך הכיתה. שתי לחיצות: תלמיד, ואז סכום.
+/* מסך הכיתה: מימין כרטיס התלמיד (תמיד פתוח), משמאל כל הכיתה.
+   לחיצה על תלמיד פותחת אותו מיד. לחיצה על סכום שומרת מיד.
    כל בדיקת הרשאה נעשית בשרת — כאן רק תצוגה. */
 
 var students = [];
@@ -6,17 +7,13 @@ var selected = null;
 var lastMovement = null;
 var undoTimer = null;
 
-var grid    = document.getElementById('grid');
-var empty   = document.getElementById('empty');
-var search  = document.getElementById('search');
-var pad     = document.getElementById('pad');
-var padName = document.getElementById('padName');
-var amounts = document.getElementById('amounts');
-var free    = document.getElementById('free');
-var undoBar = document.getElementById('undo');
-var undoText= document.getElementById('undoText');
-var undoDial= document.getElementById('undoTimer');
-var toastEl = document.getElementById('toast');
+var $ = function (id) { return document.getElementById(id); };
+var grid = $('grid'), empty = $('empty'), search = $('search');
+var free = $('free'), toastEl = $('toast');
+
+var MAIN = 1;               // הסכום השכיח — גדול ובאקצנט
+var OTHER = [2, 3, 5, 10];
+var TAKE = [-1, -2, -5];
 
 function tier(b) { return b >= 50 ? 't2' : b >= 10 ? 't1' : 't0'; }
 
@@ -40,38 +37,23 @@ function toast(msg) {
   toast._t = setTimeout(function () { toastEl.hidden = true; }, 3000);
 }
 
+function el(tag, cls, text) {
+  var e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+/* ---------------- הכיתה ---------------- */
+
 function render(list) {
   grid.textContent = '';
   empty.hidden = list.length > 0;
-
   list.forEach(function (s) {
-    var card = document.createElement('button');
-    card.className = 'card' + (selected && selected.id === s.id ? ' sel' : '');
-    card.dataset.id = s.id;
-
-    var name = document.createElement('span');
-    name.className = 'sname';
-    name.textContent = s.name;
-    card.appendChild(name);
-
-    // only shown when another student in this class shares the name
-    if (s.namesakes > 1) {
-      var tag = document.createElement('span');
-      tag.className = 'tag';
-      tag.textContent = s.mark ? s.mark : '#' + s.student_no;
-      card.appendChild(tag);
-    }
-
-    var bal = document.createElement('span');
-    bal.className = 'bal num ' + tier(s.balance);
-    bal.textContent = s.balance;
-    card.appendChild(bal);
-
-    var unit = document.createElement('span');
-    unit.className = 'unit';
-    unit.textContent = 'נקודות';
-    card.appendChild(unit);
-
+    var card = el('button', 'card' + (selected && selected.id === s.id ? ' sel' : ''));
+    card.appendChild(el('span', 'sname', s.name));
+    if (s.namesakes > 1) card.appendChild(el('span', 'tag', s.mark || '#' + s.student_no));
+    card.appendChild(el('span', 'bal num ' + tier(s.balance), s.balance));
     card.addEventListener('click', function () { select(s); });
     grid.appendChild(card);
   });
@@ -85,120 +67,153 @@ function filtered() {
   });
 }
 
+/* ---------------- כרטיס התלמיד ---------------- */
+
 function select(s) {
   selected = s;
-  padName.textContent = s.name + ' · ' + s.balance;
-  pad.hidden = false;
-  free.value = '';
   render(filtered());
+  paintPanel();
+  loadStats();
+  loadHistory();
 }
 
-function closePad() {
-  selected = null;
-  pad.hidden = true;
-  render(filtered());
+function paintPanel() {
+  var s = selected;
+  if (!s) return;
+  $('pClass').textContent = window.CLASS_NAME || '';
+  $('pNo').textContent = '#' + s.student_no;
+  $('pName').textContent = s.name + (s.namesakes > 1 && s.mark ? ' · ' + s.mark : '');
+  $('pBal').textContent = s.balance;
 }
 
-function amtButton(n, cls) {
-  var b = document.createElement('button');
-  b.className = 'amt ' + cls;
-  b.textContent = n > 0 ? '+' + n : String(n);
-  b.addEventListener('click', function () { grant(n); });
-  return b;
+function loadStats() {
+  if (!selected) return;
+  api('/api/stats/' + selected.id).then(function (r) {
+    $('sToday').textContent = (r.today > 0 ? '+' : '') + r.today;
+    $('sWeek').textContent = (r.week > 0 ? '+' : '') + r.week;
+    $('sCount').textContent = r.count;
+  }).catch(function () {});
 }
 
-// the common amount is big; the rest are smaller; taking away is set apart.
-var MAIN = 1;
-var OTHER = [2, 3, 5, 10];
-var TAKE = [-1, -2, -5];
+function when(ts) {
+  // "2026-09-28 09:42:11" → "09:42", or the date if not today
+  var today = new Date().toISOString().slice(0, 10);
+  return ts.slice(0, 10) === today ? ts.slice(11, 16) : ts.slice(8, 10) + '/' + ts.slice(5, 7);
+}
 
-function buildAmounts() {
-  amounts.textContent = '';
+function loadHistory() {
+  var hist = $('hist');
+  hist.textContent = '';
+  if (!selected) return;
+  if (window.ROLE !== 'teacher') {
+    hist.appendChild(el('li', 'none', 'היסטוריה — רק המורה'));
+    return;
+  }
+  api('/api/history/' + selected.id).then(function (rows) {
+    hist.textContent = '';
+    if (!rows.length) { hist.appendChild(el('li', 'none', 'אין עדיין תנועות')); return; }
+    rows.slice(0, 8).forEach(function (m) {
+      var li = el('li');
+      var cls = m.undone ? 'off' : m.delta > 0 ? 'plus' : 'minus';
+      li.appendChild(el('span', 'h-d ' + cls, (m.delta > 0 ? '+' : '') + m.delta));
+      li.appendChild(el('span', 'h-who', m.kind === 'undo' ? 'ביטול · ' + m.actor_name : m.actor_name));
+      li.appendChild(el('span', 'h-when num', when(m.created_at)));
+      hist.appendChild(li);
+    });
+  }).catch(function (e) { hist.appendChild(el('li', 'none', e.message)); });
+}
 
-  var mainRow = document.createElement('div');
-  mainRow.className = 'row';
-  mainRow.appendChild(amtButton(MAIN, 'main'));
-  amounts.appendChild(mainRow);
-
-  var rest = document.createElement('div');
-  rest.className = 'row';
-  OTHER.forEach(function (n) { rest.appendChild(amtButton(n, '')); });
-  amounts.appendChild(rest);
+function buildButtons() {
+  var circles = $('circles');
+  circles.textContent = '';
+  [MAIN].concat(OTHER).forEach(function (n) {
+    var b = el('button', 'circle' + (n === MAIN ? ' main' : ''), '+' + n);
+    b.addEventListener('click', function () { grant(n); });
+    circles.appendChild(b);
+  });
 
   if (window.ROLE === 'teacher') {
-    var lbl = document.createElement('div');
-    lbl.className = 'minus-label';
-    lbl.textContent = 'הורדת נקודות · רק מורה';
-    amounts.appendChild(lbl);
-    var take = document.createElement('div');
-    take.className = 'row';
-    TAKE.forEach(function (n) { take.appendChild(amtButton(n, 'minus')); });
-    amounts.appendChild(take);
+    $('takeBlock').hidden = false;
+    var pills = $('pills');
+    pills.textContent = '';
+    TAKE.forEach(function (n) {
+      var b = el('button', 'pill', String(n).replace('-', '−'));
+      b.addEventListener('click', function () { grant(n); });
+      pills.appendChild(b);
+    });
   }
 }
 
+/* ---------------- פעולות ---------------- */
+
 function grant(amount) {
-  if (!selected) return;
+  if (!selected) { toast('בחר תלמיד'); return; }
   var id = selected.id;
   api('/api/grant', { studentId: id, amount: amount })
     .then(function (r) {
       var s = students.filter(function (x) { return x.id === id; })[0];
       if (s) s.balance = r.balance;
       lastMovement = r.movementId;
-      closePad();
+      free.value = '';
+      render(filtered());
+      paintPanel();
+      loadStats();
+      loadHistory();
       showUndo((amount > 0 ? '+' : '') + amount + ' ל' + r.name);
     })
     .catch(function (e) { toast(e.message); });
 }
 
 function showUndo(text) {
-  undoText.textContent = text;
-  undoBar.hidden = false;
+  $('undoText').textContent = text;
+  $('undo').hidden = false;
   var total = 6000, start = Date.now();
   clearInterval(undoTimer);
   undoTimer = setInterval(function () {
     var left = Math.max(0, 1 - (Date.now() - start) / total);
-    undoDial.style.setProperty('--p', (left * 100).toFixed(0) + '%');
-    if (left === 0) { clearInterval(undoTimer); undoBar.hidden = true; lastMovement = null; }
+    $('undoTimer').style.setProperty('--p', (left * 100).toFixed(0) + '%');
+    if (left === 0) { clearInterval(undoTimer); $('undo').hidden = true; lastMovement = null; }
   }, 100);
 }
 
-document.getElementById('undoBtn').addEventListener('click', function () {
+$('undoBtn').addEventListener('click', function () {
   if (!lastMovement) return;
   api('/api/undo', { movementId: lastMovement })
     .then(function () {
       clearInterval(undoTimer);
-      undoBar.hidden = true;
+      $('undo').hidden = true;
       lastMovement = null;
       load();
     })
     .catch(function (e) { toast(e.message); });
 });
 
-document.getElementById('padClose').addEventListener('click', closePad);
-document.getElementById('freeGo').addEventListener('click', function () {
+$('freeGo').addEventListener('click', function () {
   var n = parseInt(free.value, 10);
   if (!n) { toast('הקלד סכום'); return; }
   grant(n);
 });
-free.addEventListener('keydown', function (e) {
-  if (e.key === 'Enter') document.getElementById('freeGo').click();
-});
+free.addEventListener('keydown', function (e) { if (e.key === 'Enter') $('freeGo').click(); });
+
+// חיפוש או סריקת ברקוד: Enter פותח את התלמיד הראשון שנמצא
 search.addEventListener('input', function () { render(filtered()); });
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') closePad();
+search.addEventListener('keydown', function (e) {
+  if (e.key !== 'Enter') return;
+  var hit = filtered()[0];
+  if (hit) { select(hit); search.value = ''; render(filtered()); }
 });
 
-document.getElementById('logout').addEventListener('click', function () {
+$('logout').addEventListener('click', function () {
   api('/api/logout', {}).then(function () { location.href = '/login'; });
 });
 
 function load() {
   return api('/api/students?c=' + window.CLASS_ID).then(function (rows) {
     students = rows;
-    render(filtered());
+    var keep = selected && rows.filter(function (x) { return x.id === selected.id; })[0];
+    select(keep || rows[0] || null);
   });
 }
 
-buildAmounts();
+buildButtons();
 load();

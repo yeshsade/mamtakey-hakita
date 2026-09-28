@@ -151,11 +151,27 @@ app.post('/api/undo', requireUser, (req, res) => {
 });
 
 app.get('/api/history/:id', requireUser, (req, res) => {
+  if (req.actor.role !== 'teacher') {
+    return res.status(403).json({ error: 'היסטוריה — רק המורה' });
+  }
   res.json(db.all(
     `SELECT id, delta, kind, note, actor_name, created_at, undone
        FROM movements WHERE student_id = ? ORDER BY id DESC LIMIT 20`,
     [Number(req.params.id)]
   ));
+});
+
+app.get('/api/stats/:id', requireUser, (req, res) => {
+  const id = Number(req.params.id);
+  const one = (sql) => db.get(sql, [id]).v;
+  res.json({
+    today: one(`SELECT COALESCE(SUM(delta),0) AS v FROM movements
+                 WHERE student_id = ? AND date(created_at) = date('now','localtime')`),
+    week:  one(`SELECT COALESCE(SUM(delta),0) AS v FROM movements
+                 WHERE student_id = ? AND created_at >= datetime('now','localtime','-7 days')`),
+    count: one(`SELECT COUNT(*) AS v FROM movements
+                 WHERE student_id = ? AND kind != 'undo' AND undone = 0`)
+  });
 });
 
 const PORT = process.env.PORT || 3100;

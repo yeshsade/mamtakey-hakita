@@ -26,22 +26,52 @@
   <input class="search" id="search" type="search" placeholder="חיפוש תלמיד…" autocomplete="off">
 </nav>
 
-<main>
-  <div class="grid" id="grid" aria-live="polite"></div>
-  <p class="empty" id="empty" hidden>אין תלמידים שתואמים את החיפוש.</p>
-</main>
+<div class="split">
 
-<!-- amount pad: opens on a student, closes on save. two clicks, nothing more. -->
-<div class="pad" id="pad" hidden>
-  <div class="pad-head">
-    <span class="h pad-name" id="padName"></span>
-    <button class="quiet" id="padClose">סגור</button>
-  </div>
-  <div class="amounts" id="amounts"></div>
-  <div class="pad-foot">
-    <input class="free num" id="free" type="number" inputmode="numeric" placeholder="סכום אחר" min="-20" max="20">
-    <button class="primary h" id="freeGo">שמור</button>
-  </div>
+  <!-- מימין: הכרטיס של התלמיד. תמיד פתוח. -->
+  <aside class="panel" id="panel">
+    <div class="hero">
+      <div class="hero-top">
+        <span class="p-class" id="pClass"></span>
+        <span class="p-no num" id="pNo"></span>
+      </div>
+      <div class="p-name h" id="pName"></div>
+      <div class="p-bal h num" id="pBal"></div>
+      <div class="p-unit">נקודות</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><span class="s-num h num" id="sToday">0</span><span class="s-lbl">היום</span></div>
+      <div class="stat"><span class="s-num h num" id="sWeek">0</span><span class="s-lbl">השבוע</span></div>
+      <div class="stat"><span class="s-num h num" id="sCount">0</span><span class="s-lbl">פעולות</span></div>
+    </div>
+
+    <div class="block">
+      <div class="lbl">מתן נקודות</div>
+      <div class="circles" id="circles"></div>
+    </div>
+
+    <div class="block" id="takeBlock" hidden>
+      <div class="lbl">הורדה · רק מורה</div>
+      <div class="pills" id="pills"></div>
+    </div>
+
+    <div class="free-row">
+      <input class="free num" id="free" type="number" inputmode="numeric" placeholder="סכום אחר" min="-20" max="20">
+      <button class="go" id="freeGo" aria-label="שמור">←</button>
+    </div>
+
+    <div class="block">
+      <div class="lbl">תנועות אחרונות</div>
+      <ul class="hist" id="hist"></ul>
+    </div>
+  </aside>
+
+  <!-- משמאל: כל הכיתה -->
+  <main class="list">
+    <div class="grid" id="grid" aria-live="polite"></div>
+    <p class="empty" id="empty" hidden>אין תלמידים שתואמים את החיפוש.</p>
+  </main>
 </div>
 
 <div class="undo" id="undo" hidden>
@@ -52,7 +82,7 @@
 
 <div class="toast" id="toast" hidden></div>
 
-<script>window.CLASS_ID = <%= currentId %>; window.ROLE = "<%= actor.role %>";</script>
+<script>window.CLASS_ID = <%= currentId %>; window.ROLE = "<%= actor.role %>"; window.CLASS_NAME = "<%= (classes.find(function(c){return c.id===currentId})||{}).name %>";</script>
 <script src="/app.js"></script>
 </body>
 </html>
