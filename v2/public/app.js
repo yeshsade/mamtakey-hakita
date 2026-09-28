@@ -49,11 +49,6 @@ function render(list) {
     card.className = 'card' + (selected && selected.id === s.id ? ' sel' : '');
     card.dataset.id = s.id;
 
-    var face = document.createElement('span');
-    face.className = 'face h';
-    face.textContent = s.name.charAt(0);
-    card.appendChild(face);
-
     var name = document.createElement('span');
     name.className = 'sname';
     name.textContent = s.name;
@@ -104,17 +99,42 @@ function closePad() {
   render(filtered());
 }
 
+function amtButton(n, cls) {
+  var b = document.createElement('button');
+  b.className = 'amt ' + cls;
+  b.textContent = n > 0 ? '+' + n : String(n);
+  b.addEventListener('click', function () { grant(n); });
+  return b;
+}
+
+// the common amount is big; the rest are smaller; taking away is set apart.
+var MAIN = 1;
+var OTHER = [2, 3, 5, 10];
+var TAKE = [-1, -2, -5];
+
 function buildAmounts() {
-  var give = [1, 2, 3, 5, 10];
-  var take = [-1, -5];
   amounts.textContent = '';
-  give.concat(window.ROLE === 'teacher' ? take : []).forEach(function (n) {
-    var b = document.createElement('button');
-    b.className = 'amt h' + (n < 0 ? ' minus' : '');
-    b.textContent = n > 0 ? '+' + n : String(n);
-    b.addEventListener('click', function () { grant(n); });
-    amounts.appendChild(b);
-  });
+
+  var mainRow = document.createElement('div');
+  mainRow.className = 'row';
+  mainRow.appendChild(amtButton(MAIN, 'main'));
+  amounts.appendChild(mainRow);
+
+  var rest = document.createElement('div');
+  rest.className = 'row';
+  OTHER.forEach(function (n) { rest.appendChild(amtButton(n, '')); });
+  amounts.appendChild(rest);
+
+  if (window.ROLE === 'teacher') {
+    var lbl = document.createElement('div');
+    lbl.className = 'minus-label';
+    lbl.textContent = 'הורדת נקודות · רק מורה';
+    amounts.appendChild(lbl);
+    var take = document.createElement('div');
+    take.className = 'row';
+    TAKE.forEach(function (n) { take.appendChild(amtButton(n, 'minus')); });
+    amounts.appendChild(take);
+  }
 }
 
 function grant(amount) {

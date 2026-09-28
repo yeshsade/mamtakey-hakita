@@ -9,23 +9,20 @@
 </head>
 <body style="--h:'<%= font %>', 'Arial Hebrew', sans-serif">
 
-<header class="bar">
-  <div class="brand">
-    <span class="mark"></span>
-    <span class="h">ממתקי הכיתה</span>
-  </div>
-  <div class="who">
-    <span class="avatar h"><%= actor.name.charAt(0) %></span>
-    <span class="h name"><%= actor.name %></span>
+<header class="top">
+  <div class="hello">
+    <span class="h">שלום, <%= actor.name %></span>
     <span class="role"><%= actor.role === 'teacher' ? 'מורה' : 'תורן' %></span>
-    <button class="quiet" id="logout">יציאה</button>
   </div>
+  <button class="quiet" id="logout">יציאה</button>
 </header>
 
-<nav class="classes">
-  <% classes.forEach(function(c){ %>
-    <a class="chip h <%= c.id === currentId ? 'on' : '' %>" href="/class?c=<%= c.id %>"><%= c.name %></a>
-  <% }); %>
+<nav class="tools">
+  <div class="seg" role="tablist">
+    <% classes.forEach(function(c){ %>
+      <a class="seg-i h <%= c.id === currentId ? 'on' : '' %>" href="/class?c=<%= c.id %>"><%= c.name %></a>
+    <% }); %>
+  </div>
   <input class="search" id="search" type="search" placeholder="חיפוש תלמיד…" autocomplete="off">
 </nav>
 
