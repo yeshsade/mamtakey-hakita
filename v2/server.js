@@ -1,6 +1,7 @@
 const express = require('express');
 const session = require('express-session');
 const path = require('path');
+const fs = require('fs');
 const { db, init } = require('./db');
 
 const app = express();
@@ -89,12 +90,19 @@ app.get('/api/students', requireUser, (req, res) => {
   const rows = db.all(
     `SELECT s.id, s.student_no, s.name, s.mark, s.balance,
             (SELECT COUNT(*) FROM students x
-              WHERE x.class_id = s.class_id AND x.name = s.name AND x.active = 1) AS namesakes
+              WHERE x.class_id = s.class_id AND x.name = s.name AND x.active = 1) AS namesakes,
+            (SELECT COALESCE(SUM(m.delta),0) FROM movements m
+              WHERE m.student_id = s.id AND date(m.created_at) = date('now','localtime')) AS today
        FROM students s
       WHERE s.class_id = ? AND s.active = 1
       ORDER BY s.name`,
     [Number(req.query.c)]
   );
+  // a photo appears by itself once v2/public/photos/<student_no>.jpg exists
+  rows.forEach(r => {
+    r.photo = fs.existsSync(path.join(__dirname, 'public', 'photos', r.student_no + '.jpg'))
+      ? '/photos/' + r.student_no + '.jpg' : null;
+  });
   res.json(rows);
 });
 

@@ -134,23 +134,45 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 .empty{color:var(--soft);text-align:center;padding:48px 16px}
 
 .card{
+  position:relative;overflow:hidden;
   background:var(--card);border-radius:16px;padding:12px;
-  display:flex;flex-direction:column;align-items:flex-start;text-align:right;
-  width:100%;min-height:92px;
-  transition:background .12s cubic-bezier(.2,.7,.3,1);
+  display:flex;align-items:stretch;text-align:right;
+  width:100%;min-height:112px;
+  transition:background .12s cubic-bezier(.2,.7,.3,1), opacity .12s;
 }
 .card:hover{background:var(--card-hi)}
 .card.sel{box-shadow:inset 0 0 0 2px var(--accent);background:var(--card-hi)}
+/* מי שלא קיבל כלום היום — מעומעם, כדי שיבלוט מי ששכחת */
+.card.idle{opacity:.62}
+.card.idle:hover,.card.idle.sel{opacity:1}
+
+/* שכבת התמונה (ד) — בצד שמאל של הכרטיס, דוהה לתוך הרקע */
+.photo{
+  position:absolute;inset-block:0;inset-inline-end:0;width:58%;
+  background-size:cover;background-position:center;
+  -webkit-mask-image:linear-gradient(to right, #000 35%, transparent);
+          mask-image:linear-gradient(to right, #000 35%, transparent);
+}
+.sil{position:absolute;bottom:0;inset-inline-end:4px;width:72px;height:80px;fill:currentColor;opacity:.22}
+.t0 .sil{color:var(--t0)} .t1 .sil{color:var(--t1)} .t2 .sil{color:var(--t2)}
+
+.cbody{position:relative;display:flex;flex-direction:column;align-items:flex-start;min-width:0;flex:1}
 .sname{
-  font-family:var(--a);font-weight:400;font-size:13px;color:var(--soft);line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;
+  font-family:var(--a);font-weight:400;font-size:13px;color:var(--text);line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;max-width:100%;
 }
 .tag{
-  display:inline-block;margin-top:4px;padding:2px 8px;border-radius:999px;
+  display:inline-block;margin-top:4px;padding:4px 8px;border-radius:999px;
   background:var(--bg);color:var(--accent);font-size:11px;font-weight:700;
 }
-.bal{font-family:var(--h);font-size:32px;line-height:1;margin-top:auto;padding-top:8px}
-.unit{display:none}
+/* המספר הגדול הוא "היום" (ו) */
+.today{font-family:var(--h);font-size:32px;line-height:1;margin-top:auto;padding-top:8px;
+       color:var(--accent);direction:ltr}
+.card.idle .today{color:#4A5163}
+.baln{font-size:12px;color:var(--soft);margin-top:4px}
+.baln b{font-family:var(--h);font-weight:400}
+.t0 .baln b{color:var(--t0)} .t1 .baln b{color:var(--t1)} .t2 .baln b{color:var(--t2)}
+.bal,.unit{display:none}
 .t0{color:var(--t0)} .t1{color:var(--t1)} .t2{color:var(--t2)}
 
 /* ---------- סרגל ביטול ---------- */

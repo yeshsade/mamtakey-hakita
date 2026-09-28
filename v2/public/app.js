@@ -46,14 +46,36 @@ function el(tag, cls, text) {
 
 /* ---------------- הכיתה ---------------- */
 
+// a person silhouette, used until a real photo exists
+var SIL = '<svg class="sil" viewBox="0 0 100 110" aria-hidden="true">' +
+  '<circle cx="50" cy="38" r="20"/><path d="M12 110 C12 78 30 66 50 66 C70 66 88 78 88 110 Z"/></svg>';
+
 function render(list) {
   grid.textContent = '';
   empty.hidden = list.length > 0;
   list.forEach(function (s) {
-    var card = el('button', 'card' + (selected && selected.id === s.id ? ' sel' : ''));
-    card.appendChild(el('span', 'sname', s.name));
-    if (s.namesakes > 1) card.appendChild(el('span', 'tag', s.mark || '#' + s.student_no));
-    card.appendChild(el('span', 'bal num ' + tier(s.balance), s.balance));
+    var today = s.today || 0;
+    var cls = 'card ' + tier(s.balance) + (today > 0 ? '' : ' idle') +
+              (selected && selected.id === s.id ? ' sel' : '');
+    var card = el('button', cls);
+
+    // photo layer (ד): real photo when there is one, silhouette until then
+    var ph = el('span', 'photo');
+    if (s.photo) ph.style.backgroundImage = 'url(' + s.photo + ')';
+    else ph.innerHTML = SIL;
+    card.appendChild(ph);
+
+    var body = el('span', 'cbody');
+    body.appendChild(el('span', 'sname', s.name));
+    if (s.namesakes > 1) body.appendChild(el('span', 'tag', s.mark || '#' + s.student_no));
+    // today is the big number (ו) — who hasn't been given anything yet stands out
+    body.appendChild(el('span', 'today', today > 0 ? '+' + today : today < 0 ? String(today) : '—'));
+    var bal = el('span', 'baln');
+    bal.appendChild(document.createTextNode('יתרה '));
+    bal.appendChild(el('b', 'num', s.balance));
+    body.appendChild(bal);
+    card.appendChild(body);
+
     card.addEventListener('click', function () { select(s); });
     grid.appendChild(card);
   });
@@ -152,7 +174,7 @@ function grant(amount) {
   api('/api/grant', { studentId: id, amount: amount })
     .then(function (r) {
       var s = students.filter(function (x) { return x.id === id; })[0];
-      if (s) s.balance = r.balance;
+      if (s) { s.balance = r.balance; s.today = (s.today || 0) + amount; }
       lastMovement = r.movementId;
       free.value = '';
       render(filtered());
