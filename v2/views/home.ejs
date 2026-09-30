@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ממתקי הכיתה</title>
+<link rel="stylesheet" href="/fonts/fonts.css">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body class="shell">
+<%- include('partials/rail') %>
+
+<div class="page">
+  <header class="top">
+    <div class="hello">
+      <span class="h">שלום, <%= actor.name %></span>
+      <span class="role"><%= actor.role === 'teacher' ? 'מורה' : 'תורן' %></span>
+    </div>
+  </header>
+
+  <%# Grid: ארבעת המסכים של דרישה 51. מה שעוד לא נבנה — חיוור. %>
+  <main class="menu">
+    <a class="tile main" href="/class">
+      <span class="tile-ic"><%- icon('coins', 28) %></span>
+      <span class="tile-t h">נקודות</span>
+      <span class="tile-s">מתן והורדה לכל הכיתה</span>
+      <span class="tile-live">
+        <b class="h num">+<%= today.v %></b> היום · <b class="h num"><%= today.kids %></b> מתוך <%= total %> ילדים קיבלו
+      </span>
+    </a>
+    <span class="tile off" aria-disabled="true">
+      <span class="tile-ic"><%- icon('bag', 28) %></span>
+      <span class="tile-t h">חנות</span>
+      <span class="tile-s">בקרוב</span>
+    </span>
+    <span class="tile off" aria-disabled="true">
+      <span class="tile-ic"><%- icon('sliders', 28) %></span>
+      <span class="tile-t h">ניהול</span>
+      <span class="tile-s">בקרוב</span>
+    </span>
+    <span class="tile off" aria-disabled="true">
+      <span class="tile-ic"><%- icon('chart', 28) %></span>
+      <span class="tile-t h">דוחות</span>
+      <span class="tile-s">בקרוב</span>
+    </span>
+  </main>
+</div>
+
+<script>
+document.getElementById('logout').addEventListener('click', function () {
+  fetch('/api/logout', { method: 'POST' }).then(function () { location.href = '/login'; });
+});
+</script>
+</body>
+</html>

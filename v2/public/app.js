@@ -30,7 +30,8 @@ function api(url, body) {
   });
 }
 
-function toast(msg) {
+function toast(msg, ok) {
+  toastEl.className = 'toast' + (ok ? ' ok' : '');
   toastEl.textContent = msg;
   toastEl.hidden = false;
   clearTimeout(toast._t);
@@ -239,3 +240,64 @@ function load() {
 
 buildButtons();
 load();
+
+/* ---------------- Three dots: פעולות נדירות על תלמיד (מורה בלבד) ---------------- */
+(function () {
+  var dots = $('dots');
+  if (!dots) return;                       // duty students don't get the menu
+  var more = $('more');
+  var views = ['moreMain', 'moreRename', 'moreMove', 'moreDelete'];
+
+  function show(id) { views.forEach(function (v) { $(v).hidden = v !== id; }); }
+  function open() { show('moreMain'); more.hidden = false; dots.setAttribute('aria-expanded', 'true'); }
+  function close() { more.hidden = true; dots.setAttribute('aria-expanded', 'false'); }
+
+  dots.addEventListener('click', function (e) { e.stopPropagation(); more.hidden ? open() : close(); });
+  more.addEventListener('click', function (e) { e.stopPropagation(); });
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  grid.addEventListener('click', close);
+
+  Array.prototype.forEach.call(more.querySelectorAll('[data-back]'), function (b) {
+    b.addEventListener('click', function () { show('moreMain'); });
+  });
+
+  $('mRename').addEventListener('click', function () {
+    if (!selected) return;
+    show('moreRename');
+    $('renameIn').value = selected.name;
+    $('renameIn').focus();
+    $('renameIn').select();
+  });
+  function doRename() {
+    var name = $('renameIn').value.trim();
+    if (!name) { toast('שם ריק'); return; }
+    api('/api/student/' + selected.id + '/rename', { name: name })
+      .then(function () { close(); load(); })
+      .catch(function (e) { toast(e.message); });
+  }
+  $('renameOk').addEventListener('click', doRename);
+  $('renameIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') doRename(); });
+
+  $('mMove').addEventListener('click', function () { show('moreMove'); });
+  Array.prototype.forEach.call(more.querySelectorAll('[data-move]'), function (b) {
+    b.addEventListener('click', function () {
+      var name = selected.name, target = b.textContent.trim();
+      api('/api/student/' + selected.id + '/move', { classId: Number(b.dataset.move) })
+        .then(function () { close(); selected = null; load(); toast(name + ' הועבר ל' + target, true); })
+        .catch(function (e) { toast(e.message); });
+    });
+  });
+
+  $('mDelete').addEventListener('click', function () {
+    if (!selected) return;
+    $('delName').textContent = selected.name;
+    show('moreDelete');
+  });
+  $('deleteOk').addEventListener('click', function () {
+    var name = selected.name;
+    api('/api/student/' + selected.id + '/delete', {})
+      .then(function () { close(); selected = null; load(); toast(name + ' נמחק', true); })
+      .catch(function (e) { toast(e.message); });
+  });
+})();

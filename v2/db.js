@@ -14,8 +14,10 @@ function save() {
 const db = {
   run(sql, params = []) {
     raw.run(sql, params);
+    // read the counter before save(): export() resets it to 0
+    const changes = raw.getRowsModified();
     save();
-    return { changes: raw.getRowsModified() };
+    return { changes };
   },
   get(sql, params = []) {
     const s = raw.prepare(sql);

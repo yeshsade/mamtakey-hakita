@@ -7,14 +7,15 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="/app.css">
 </head>
-<body style="--h:'<%= font %>', 'Arial Hebrew', sans-serif">
+<body class="shell" style="--h:'<%= font %>', 'Arial Hebrew', sans-serif">
+<%- include('partials/rail') %>
 
+<div class="page">
 <header class="top">
   <div class="hello">
     <span class="h">שלום, <%= actor.name %></span>
     <span class="role"><%= actor.role === 'teacher' ? 'מורה' : 'תורן' %></span>
   </div>
-  <button class="quiet" id="logout">יציאה</button>
 </header>
 
 <nav class="tools">
@@ -34,6 +35,31 @@
       <div class="hero-top">
         <span class="p-class" id="pClass"></span>
         <span class="p-no num" id="pNo"></span>
+        <% if (actor.role === 'teacher') { %>
+          <button class="dots" id="dots" aria-label="עוד פעולות" aria-haspopup="menu" aria-expanded="false"><%- icon('dots', 20) %></button>
+        <% } %>
+      </div>
+      <div class="more" id="more" role="menu" hidden>
+        <div class="more-view" id="moreMain">
+          <button class="more-i" id="mRename" role="menuitem"><%- icon('pencil', 18) %><span>שינוי שם</span></button>
+          <button class="more-i" id="mMove" role="menuitem"><%- icon('move', 18) %><span>העברה לכיתה אחרת</span></button>
+          <button class="more-i danger" id="mDelete" role="menuitem"><%- icon('trash', 18) %><span>מחיקת תלמיד</span></button>
+        </div>
+        <div class="more-view" id="moreRename" hidden>
+          <input class="more-in" id="renameIn" type="text" maxlength="40" autocomplete="off">
+          <div class="more-row"><button class="more-btn ok" id="renameOk">שמור</button><button class="more-btn" data-back>ביטול</button></div>
+        </div>
+        <div class="more-view" id="moreMove" hidden>
+          <div class="more-lbl">להעביר ל…</div>
+          <% classes.forEach(function (c) { %>
+            <button class="more-i" data-move="<%= c.id %>" <%= c.id === currentId ? 'hidden' : '' %>><span><%= c.name %></span></button>
+          <% }); %>
+          <div class="more-row"><button class="more-btn" data-back>ביטול</button></div>
+        </div>
+        <div class="more-view" id="moreDelete" hidden>
+          <div class="more-warn">למחוק את <b id="delName"></b>?<br>כל ההיסטוריה שלו תימחק. אי אפשר לבטל.</div>
+          <div class="more-row"><button class="more-btn bad" id="deleteOk">מחק לצמיתות</button><button class="more-btn" data-back>ביטול</button></div>
+        </div>
       </div>
       <div class="p-name h" id="pName"></div>
       <div class="p-bal h num" id="pBal"></div>
@@ -72,6 +98,7 @@
     <div class="grid" id="grid" aria-live="polite"></div>
     <p class="empty" id="empty" hidden>אין תלמידים שתואמים את החיפוש.</p>
   </main>
+</div>
 </div>
 
 <div class="undo" id="undo" hidden>

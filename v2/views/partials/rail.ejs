@@ -1,0 +1,24 @@
+<%# Rail: פס צר עם אייקון ותווית. מסכים שעוד לא נבנו — חיוורים ולא לחיצים. %>
+<nav class="rail" aria-label="ניווט">
+  <% [
+       { key:'home',  href:'/home',  ic:'home',    label:'בית',    ready:true  },
+       { key:'class', href:'/class', ic:'coins',   label:'נקודות', ready:true  },
+       { key:'store', href:'#',      ic:'bag',     label:'חנות',   ready:false },
+       { key:'admin', href:'#',      ic:'sliders', label:'ניהול',  ready:false },
+       { key:'rep',   href:'#',      ic:'chart',   label:'דוחות',  ready:false }
+     ].forEach(function (r) { %>
+    <% if (r.ready) { %>
+      <a class="rail-i <%= page === r.key ? 'on' : '' %>" href="<%= r.href %>"
+         <%= page === r.key ? 'aria-current=page' : '' %>>
+        <span class="rail-ic"><%- icon(r.ic, 22) %></span><span class="rail-l"><%= r.label %></span>
+      </a>
+    <% } else { %>
+      <span class="rail-i off" aria-disabled="true" title="בקרוב">
+        <span class="rail-ic"><%- icon(r.ic, 22) %></span><span class="rail-l"><%= r.label %></span>
+      </span>
+    <% } %>
+  <% }); %>
+  <button class="rail-i rail-out" id="logout">
+    <span class="rail-ic"><%- icon('logout', 22) %></span><span class="rail-l">יציאה</span>
+  </button>
+</nav>

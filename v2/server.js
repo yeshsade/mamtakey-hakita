@@ -3,10 +3,12 @@ const session = require('express-session');
 const path = require('path');
 const fs = require('fs');
 const { db, init } = require('./db');
+const { icon } = require('./icons');
 
 const app = express();
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
+app.locals.icon = icon;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
@@ -40,7 +42,18 @@ function requireTeacher(req, res, next) {
 /* ---------------- auth ---------------- */
 app.get('/', (req, res) => {
   if (!actor(req)) return res.redirect('/login');
-  res.redirect('/class');
+  res.redirect('/home');
+});
+
+// Grid: the main menu (requirement 51)
+app.get('/home', (req, res) => {
+  const a = actor(req);
+  if (!a) return res.redirect('/login');
+  const today = db.get(`SELECT COALESCE(SUM(delta),0) AS v, COUNT(DISTINCT student_id) AS kids
+                          FROM movements WHERE date(created_at) = date('now','localtime')
+                           AND kind = 'grant'`);
+  const total = db.get('SELECT COUNT(*) AS v FROM students WHERE active = 1').v;
+  res.render('home', { actor: a, page: 'home', today, total });
 });
 
 app.get('/login', (req, res) => {
@@ -81,7 +94,7 @@ app.get('/class', (req, res) => {
   const current = Number(req.query.c) || classes[0].id;
   const fontKey = FONTS[req.query.font] ? req.query.font : 'secular';
   res.render('class', {
-    actor: a, classes, currentId: current,
+    actor: a, page: 'class', classes, currentId: current,
     font: FONTS[fontKey], fontKey, fonts: FONTS
   });
 });
@@ -180,6 +193,35 @@ app.get('/api/stats/:id', requireUser, (req, res) => {
     count: one(`SELECT COUNT(*) AS v FROM movements
                  WHERE student_id = ? AND kind != 'undo' AND undone = 0`)
   });
+});
+
+/* ---------------- rare actions on a student (Three dots). teacher only ---------------- */
+app.post('/api/student/:id/rename', requireUser, requireTeacher, (req, res) => {
+  const name = String(req.body.name || '').trim();
+  if (!name) return res.status(400).json({ error: 'שם ריק' });
+  if (name.length > 40) return res.status(400).json({ error: 'שם ארוך מדי' });
+  const r = db.run('UPDATE students SET name = ? WHERE id = ? AND active = 1', [name, Number(req.params.id)]);
+  if (!r.changes) return res.status(404).json({ error: 'תלמיד לא נמצא' });
+  res.json({ ok: true });
+});
+
+app.post('/api/student/:id/move', requireUser, requireTeacher, (req, res) => {
+  const cls = db.get('SELECT id FROM classes WHERE id = ?', [Number(req.body.classId)]);
+  if (!cls) return res.status(404).json({ error: 'כיתה לא נמצאה' });
+  const r = db.run('UPDATE students SET class_id = ? WHERE id = ? AND active = 1', [cls.id, Number(req.params.id)]);
+  if (!r.changes) return res.status(404).json({ error: 'תלמיד לא נמצא' });
+  res.json({ ok: true });
+});
+
+// requirement 45: a student who leaves is deleted completely, history included
+app.post('/api/student/:id/delete', requireUser, requireTeacher, (req, res) => {
+  const id = Number(req.params.id);
+  if (!db.get('SELECT id FROM students WHERE id = ?', [id])) {
+    return res.status(404).json({ error: 'תלמיד לא נמצא' });
+  }
+  db.run('DELETE FROM movements WHERE student_id = ?', [id]);
+  db.run('DELETE FROM students WHERE id = ?', [id]);
+  res.json({ ok: true });
 });
 
 const PORT = process.env.PORT || 3100;

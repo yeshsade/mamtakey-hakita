@@ -57,7 +57,7 @@ function login(id, code){
   fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({id:id, code:code})})
     .then(function(r){ return r.json().then(function(j){ if(!r.ok) throw new Error(j.error); return j; }); })
-    .then(function(){ location.href='/class'; })
+    .then(function(){ location.href='/home'; })
     .catch(function(e){ toast(e.message); });
 }
 

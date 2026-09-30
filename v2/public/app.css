@@ -130,7 +130,7 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 
 /* ---------- הכיתה: כרטיסים קומפקטיים ---------- */
 .list{flex:1;min-width:0}
-.grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}
+.grid{display:grid;gap:8px;grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
 .empty{color:var(--soft);text-align:center;padding:48px 16px}
 
 .card{
@@ -218,3 +218,97 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
   .search{margin-inline-start:0;width:100%}
   .seg{overflow-x:auto;max-width:100%}
 }
+
+/* =====================================================================
+   מעטפת: Rail בצד + עמוד. Rail = פס צר עם אייקון ותווית (תבנית מסרטון הניווט)
+   ===================================================================== */
+.shell{display:flex;min-height:100vh}
+.page{flex:1;min-width:0}
+.rail{
+  flex:0 0 88px;position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:16px 8px;border-inline-end:1px solid rgba(255,255,255,.06);background:var(--bg);z-index:6;
+}
+.rail-i{
+  display:flex;flex-direction:column;align-items:center;gap:4px;width:72px;padding:8px 0;
+  color:var(--soft);text-decoration:none;font:700 12px var(--a);border-radius:16px;
+}
+.rail-ic{width:48px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;
+         transition:background .12s cubic-bezier(.2,.7,.3,1)}
+.rail-i:hover .rail-ic{background:var(--card)}
+.rail-i.on{color:var(--text)}
+.rail-i.on .rail-ic{background:var(--accent);color:var(--on-accent)}
+.rail-i.off{opacity:.35;cursor:default}
+.rail-i.off:hover .rail-ic{background:none}
+.rail-out{margin-top:auto}
+.ic{display:block}
+
+/* =====================================================================
+   Grid: התפריט הראשי (דרישה 51)
+   ===================================================================== */
+.menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:24px;max-width:880px}
+.tile{
+  background:var(--card);border-radius:24px;padding:24px;min-height:200px;
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+  color:var(--text);text-decoration:none;
+  transition:transform .12s cubic-bezier(.2,.7,.3,1);
+}
+.tile-ic{width:56px;height:56px;border-radius:16px;background:var(--bg);color:var(--accent);
+         display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.tile-t{font-size:28px;line-height:1.1}
+.tile-s{font-size:15px;color:var(--soft)}
+.tile-live{margin-top:auto;font-size:14px;color:var(--soft)}
+.tile-live b{font-weight:400;color:var(--text);font-size:18px}
+.tile.main{background:var(--accent);color:var(--on-accent)}
+.tile.main:hover{transform:translateY(-2px)}
+.tile.main .tile-ic{background:rgba(16,20,34,.1);color:var(--on-accent)}
+.tile.main .tile-s,.tile.main .tile-live{color:rgba(16,20,34,.7)}
+.tile.main .tile-live b{color:var(--on-accent)}
+.tile.off{opacity:.4}
+
+/* =====================================================================
+   Three dots על כרטיס התלמיד — פעולות נדירות. מחיקה אחרונה, באדום, מתאר בלבד
+   ===================================================================== */
+.hero-top{display:flex;align-items:center;gap:8px}
+.hero-top .p-no{margin-inline-start:auto}
+.dots{
+  width:32px;height:32px;border-radius:999px;flex:0 0 auto;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(16,20,34,.1);color:var(--on-accent);
+}
+.dots:hover,.dots[aria-expanded="true"]{background:rgba(16,20,34,.2)}
+.more{
+  position:absolute;top:56px;inset-inline-end:24px;z-index:10;width:248px;
+  background:var(--bg);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:8px;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+}
+.more-i{
+  display:flex;align-items:center;gap:12px;width:100%;padding:12px;border-radius:10px;
+  color:var(--text);font:400 15px var(--a);text-align:right;
+}
+.more-i:hover{background:var(--card)}
+.more-i .ic{color:var(--soft);flex:0 0 auto}
+.more-i.danger{color:var(--danger);border-top:1px solid rgba(255,255,255,.08);margin-top:4px;border-radius:0 0 10px 10px}
+.more-i.danger .ic{color:var(--danger)}
+.more-in{width:100%;padding:12px 16px;border-radius:10px;border:0;background:var(--card);
+         color:var(--text);font:400 16px var(--a)}
+.more-row{display:flex;gap:8px;margin-top:8px}
+.more-btn{flex:1;padding:8px 12px;border-radius:10px;background:var(--card);color:var(--text);font:700 14px var(--a)}
+.more-btn:hover{background:var(--card-hi)}
+.more-btn.ok{background:var(--accent);color:var(--on-accent)}
+.more-btn.bad{background:none;border:1.5px solid var(--danger);color:var(--danger)}
+.more-btn.bad:hover{background:var(--danger-bg)}
+.more-lbl{padding:8px 12px 4px;font-size:12px;font-weight:700;color:var(--soft)}
+.more-warn{padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5}
+
+@media (max-width:900px){
+  .panel{position:relative}
+  .menu{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .rail{flex-basis:64px;padding-inline:4px}
+  .rail-i{width:56px}
+  .rail-ic{width:40px}
+}
+
+.toast.ok{background:var(--card-hi);color:var(--accent)}
