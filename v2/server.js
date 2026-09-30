@@ -95,6 +95,7 @@ app.get('/class', (req, res) => {
   const fontKey = FONTS[req.query.font] ? req.query.font : 'secular';
   res.render('class', {
     actor: a, page: 'class', classes, currentId: current,
+    cardStyle: req.query.card === 'bank' ? 'bank' : 'plain',
     font: FONTS[fontKey], fontKey, fonts: FONTS
   });
 });

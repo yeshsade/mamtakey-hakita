@@ -312,3 +312,47 @@ button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
 }
 
 .toast.ok{background:var(--card-hi);color:var(--accent)}
+
+/* =====================================================================
+   כרטיס בנק (Skeuomorphism) — ?card=bank. היחס של כרטיס אשראי אמיתי: 85.6 × 54 מ״מ
+   צבע הכרטיס = דרגת היתרה. בלי גרדיאנט (DESIGN.md §11). צל יחיד — חריג: חפץ פיזי
+   ===================================================================== */
+.bankcard{
+  aspect-ratio:1.586;border-radius:16px;padding:16px 20px;
+  display:flex;flex-direction:column;position:relative;overflow:hidden;
+  box-shadow:0 8px 24px rgba(0,0,0,.35);
+  --c-bg:#3A4152; --c-ink:#FFFFFF; --c-soft:rgba(255,255,255,.62);
+  background:var(--c-bg);color:var(--c-ink);
+}
+.bankcard[data-tier="t1"]{--c-bg:#A8DCE7; --c-ink:#101422; --c-soft:rgba(16,20,34,.62)}
+.bankcard[data-tier="t2"]{--c-bg:#E8B54A; --c-ink:#101422; --c-soft:rgba(16,20,34,.62)}
+/* שתי קשתות דקות ברקע — כמו ההדפס על כרטיס אמיתי */
+.bankcard::before,.bankcard::after{
+  content:"";position:absolute;border-radius:999px;border:1.5px solid var(--c-soft);opacity:.18;pointer-events:none;
+}
+.bankcard::before{width:260px;height:260px;inset-inline-end:-120px;top:-150px}
+.bankcard::after{width:200px;height:200px;inset-inline-end:-60px;bottom:-150px}
+
+.bc-top{display:flex;align-items:center;gap:8px;position:relative;z-index:1}
+.bc-bank{font-size:15px}
+.bc-tier{font-size:11px;font-weight:700;color:var(--c-soft);padding:4px 8px;border-radius:999px;
+         border:1px solid var(--c-soft);margin-inline-start:auto}
+.bankcard .dots{background:rgba(0,0,0,.12);color:var(--c-ink)}
+.bankcard[data-tier="t0"] .dots{background:rgba(255,255,255,.12)}
+
+.bc-mid{display:flex;align-items:center;gap:12px;margin-top:12px}
+.bc-chip{width:40px;height:30px;border-radius:6px;background:#D9C27A;position:relative;
+         display:flex;flex-direction:column;justify-content:space-evenly;padding:0 4px;
+         box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+.bc-chip i{display:block;height:1px;background:rgba(0,0,0,.28)}
+.bankcard[data-tier="t2"] .bc-chip{background:#F4DC9A}
+.bc-wave{width:22px;height:22px;fill:none;stroke:var(--c-soft);stroke-width:1.75;stroke-linecap:round;transform:scaleX(-1)}
+
+.bc-no{margin-top:12px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:15px;letter-spacing:.14em;
+       color:var(--c-soft);direction:ltr;text-align:right}
+.bc-bottom{display:flex;align-items:flex-end;justify-content:space-between;margin-top:auto;gap:12px}
+.bc-name{font-size:20px;line-height:1.2}
+.bc-class{font-size:12px;font-weight:700;color:var(--c-soft);margin-top:2px}
+.bc-bal{display:flex;flex-direction:column;align-items:flex-end}
+.bc-bal .h{font-size:52px;line-height:.9;letter-spacing:-.02em}
+.bc-unit{font-size:11px;font-weight:700;color:var(--c-soft);margin-top:4px}

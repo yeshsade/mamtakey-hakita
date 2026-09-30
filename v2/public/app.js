@@ -107,6 +107,16 @@ function paintPanel() {
   $('pNo').textContent = '#' + s.student_no;
   $('pName').textContent = s.name + (s.namesakes > 1 && s.mark ? ' · ' + s.mark : '');
   $('pBal').textContent = s.balance;
+
+  // bank-card style: the card colour follows the balance tier, like a real gold card
+  if (document.body.dataset.card === 'bank') {
+    var tr = tier(s.balance);
+    $('hero').dataset.tier = tr;
+    $('cTier').textContent = { t0: 'רגיל', t1: 'תכלת', t2: 'זהב' }[tr];
+    $('pNo').textContent = '•••• •••• ' + s.student_no;
+    $('pName').textContent = s.name;
+    $('pClass').textContent = (window.CLASS_NAME || '') + (s.namesakes > 1 && s.mark ? ' · ' + s.mark : '');
+  }
 }
 
 function loadStats() {

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fonts/fonts.css">
 <link rel="stylesheet" href="/app.css">
 </head>
-<body class="shell" style="--h:'<%= font %>', 'Arial Hebrew', sans-serif">
+<body class="shell" data-card="<%= cardStyle %>" style="--h:'<%= font %>', 'Arial Hebrew', sans-serif">
 <%- include('partials/rail') %>
 
 <div class="page">
@@ -31,6 +31,55 @@
 
   <!-- מימין: הכרטיס של התלמיד. תמיד פתוח. -->
   <aside class="panel" id="panel">
+    <% if (cardStyle === 'bank') { %>
+    <%# Skeuomorphism: כרטיס בנק אמיתי. צבע הכרטיס = דרגת היתרה (רגיל · תכלת · זהב) %>
+    <div class="bankcard" id="hero" data-tier="t1">
+      <div class="bc-top">
+        <span class="bc-bank h">ממתקי הכיתה</span>
+        <span class="bc-tier" id="cTier"></span>
+        <% if (actor.role === 'teacher') { %>
+          <button class="dots" id="dots" aria-label="עוד פעולות" aria-haspopup="menu" aria-expanded="false"><%- icon('dots', 20) %></button>
+        <% } %>
+      </div>
+      <div class="bc-mid">
+        <span class="bc-chip" aria-hidden="true"><i></i><i></i><i></i></span>
+        <svg class="bc-wave" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 8a6 6 0 0 1 0 8M12 5.5a10 10 0 0 1 0 13M15.5 3a14 14 0 0 1 0 18"/></svg>
+      </div>
+      <div class="bc-no num" id="pNo"></div>
+      <div class="bc-bottom">
+        <div>
+          <div class="bc-name h" id="pName"></div>
+          <div class="bc-class" id="pClass"></div>
+        </div>
+        <div class="bc-bal">
+          <span class="h num" id="pBal"></span>
+          <span class="bc-unit">נקודות</span>
+        </div>
+      </div>
+    </div>
+      <div class="more" id="more" role="menu" hidden>
+        <div class="more-view" id="moreMain">
+          <button class="more-i" id="mRename" role="menuitem"><%- icon('pencil', 18) %><span>שינוי שם</span></button>
+          <button class="more-i" id="mMove" role="menuitem"><%- icon('move', 18) %><span>העברה לכיתה אחרת</span></button>
+          <button class="more-i danger" id="mDelete" role="menuitem"><%- icon('trash', 18) %><span>מחיקת תלמיד</span></button>
+        </div>
+        <div class="more-view" id="moreRename" hidden>
+          <input class="more-in" id="renameIn" type="text" maxlength="40" autocomplete="off">
+          <div class="more-row"><button class="more-btn ok" id="renameOk">שמור</button><button class="more-btn" data-back>ביטול</button></div>
+        </div>
+        <div class="more-view" id="moreMove" hidden>
+          <div class="more-lbl">להעביר ל…</div>
+          <% classes.forEach(function (c) { %>
+            <button class="more-i" data-move="<%= c.id %>" <%= c.id === currentId ? 'hidden' : '' %>><span><%= c.name %></span></button>
+          <% }); %>
+          <div class="more-row"><button class="more-btn" data-back>ביטול</button></div>
+        </div>
+        <div class="more-view" id="moreDelete" hidden>
+          <div class="more-warn">למחוק את <b id="delName"></b>?<br>כל ההיסטוריה שלו תימחק. אי אפשר לבטל.</div>
+          <div class="more-row"><button class="more-btn bad" id="deleteOk">מחק לצמיתות</button><button class="more-btn" data-back>ביטול</button></div>
+        </div>
+      </div>
+    <% } else { %>
     <div class="hero">
       <div class="hero-top">
         <span class="p-class" id="pClass"></span>
@@ -65,6 +114,7 @@
       <div class="p-bal h num" id="pBal"></div>
       <div class="p-unit">נקודות</div>
     </div>
+    <% } %>
 
     <div class="stats">
       <div class="stat"><span class="s-num h num" id="sToday">0</span><span class="s-lbl">היום</span></div>
